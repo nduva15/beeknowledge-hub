@@ -1,0 +1,4 @@
+project_id = "laeifazhrupoqrhqmyzg"
+
+[functions.beegpt]
+verify_jwt = false
