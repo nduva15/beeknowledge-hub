@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, X, User, Plus, Sun, Moon } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History } from "lucide-react";
 import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
 import { useTheme } from "@/hooks/use-theme";
+import { useDeviceId } from "@/hooks/use-device-id";
+import { useVoiceInput } from "@/hooks/use-voice-input";
+import { supabase } from "@/integrations/supabase/client";
+import ChatHistory, { type Conversation } from "@/components/ChatHistory";
 
 type Message = {
   id: string;
@@ -83,11 +87,7 @@ async function streamBeeyield(
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result as string;
-      // Strip the data URL prefix, send only base64 string
-      resolve(result.split(",")[1]);
-    };
+    reader.onload = () => resolve((reader.result as string).split(",")[1]);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -97,8 +97,13 @@ export default function Index() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [chatKey, setChatKey] = useState(0);
   const { theme, toggleTheme } = useTheme();
+  const deviceId = useDeviceId();
+
+  // Conversation state
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
@@ -110,9 +115,58 @@ export default function Index() {
   const audioInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Voice input
+  const handleVoiceResult = useCallback((text: string) => {
+    setInput((prev) => (prev ? prev + " " + text : text));
+    toast.success("Voice captured");
+  }, []);
+  const { isListening, isSupported: voiceSupported, toggleListening } = useVoiceInput(handleVoiceResult);
+
+  // Load conversations on mount
+  useEffect(() => {
+    loadConversations();
+  }, [deviceId]);
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const loadConversations = async () => {
+    const { data } = await supabase
+      .from("conversations")
+      .select("id, title, updated_at")
+      .eq("device_id", deviceId)
+      .order("updated_at", { ascending: false })
+      .limit(50);
+    if (data) setConversations(data);
+  };
+
+  const loadConversation = async (id: string) => {
+    const { data } = await supabase
+      .from("chat_messages")
+      .select("id, role, content, created_at")
+      .eq("conversation_id", id)
+      .order("created_at", { ascending: true });
+    if (data) {
+      setMessages(data.map((m) => ({ id: m.id, role: m.role as "user" | "assistant", content: m.content })));
+      setConversationId(id);
+    }
+  };
+
+  const saveMessage = async (convId: string, role: string, content: string) => {
+    await supabase.from("chat_messages").insert({ conversation_id: convId, role, content });
+  };
+
+  const createConversation = async (title: string): Promise<string> => {
+    const { data } = await supabase
+      .from("conversations")
+      .insert({ device_id: deviceId, title })
+      .select("id")
+      .single();
+    if (!data) throw new Error("Failed to create conversation");
+    loadConversations();
+    return data.id;
+  };
 
   const clearAttachments = useCallback(() => {
     setAttachedImage(null);
@@ -127,8 +181,7 @@ export default function Index() {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) { toast.error("Image must be under 10 MB"); return; }
     setAttachedImage(file);
-    const url = URL.createObjectURL(file);
-    setImagePreviewUrl(url);
+    setImagePreviewUrl(URL.createObjectURL(file));
   };
 
   const handleAudioSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,6 +225,21 @@ export default function Index() {
     clearAttachments();
     setIsLoading(true);
 
+    // Create or reuse conversation
+    let convId = conversationId;
+    if (!convId) {
+      try {
+        const title = text.length > 50 ? text.slice(0, 50) + "…" : text;
+        convId = await createConversation(title);
+        setConversationId(convId);
+      } catch {
+        toast.error("Failed to save conversation");
+      }
+    }
+
+    // Save user message
+    if (convId) saveMessage(convId, "user", text);
+
     const history = newMessages.map((m) => ({ role: m.role, content: m.content }));
     let assistantContent = "";
 
@@ -192,7 +260,15 @@ export default function Index() {
             return [...p, { id: (Date.now() + 1).toString(), role: "assistant" as const, content: assistantContent }];
           });
         },
-        () => setIsLoading(false),
+        () => {
+          setIsLoading(false);
+          // Save assistant message
+          if (convId && assistantContent) {
+            saveMessage(convId, "assistant", assistantContent);
+            // Update conversation timestamp
+            supabase.from("conversations").update({ updated_at: new Date().toISOString() }).eq("id", convId).then(() => loadConversations());
+          }
+        },
         (err) => { toast.error(err); setIsLoading(false); }
       );
     } catch {
@@ -214,19 +290,43 @@ export default function Index() {
   };
 
   const resetChat = () => {
-    setChatKey((k) => k + 1);
     setMessages([]);
     setInput("");
+    setConversationId(null);
     clearAttachments();
+  };
+
+  const handleDeleteConversation = async (id: string) => {
+    await supabase.from("conversations").delete().eq("id", id);
+    if (conversationId === id) resetChat();
+    loadConversations();
   };
 
   return (
     <div className="flex flex-col h-screen w-full bg-background honeycomb-bg overflow-hidden">
+      {/* Chat History Sidebar */}
+      <ChatHistory
+        conversations={conversations}
+        activeId={conversationId}
+        onSelect={loadConversation}
+        onNew={() => { resetChat(); setHistoryOpen(false); }}
+        onDelete={handleDeleteConversation}
+        isOpen={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+      />
+
       {/* Header */}
       <header className="flex-shrink-0 border-b border-border bg-sidebar px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setHistoryOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Chat history"
+          >
+            <History className="w-4 h-4" />
+          </button>
           <img src={beeyieldLogo} alt="Beeyield" className="h-9 w-auto" />
-          <div>
+          <div className="hidden sm:block">
             <div className="font-display font-bold text-foreground text-base leading-tight">Beeyield AI</div>
             <div className="text-xs text-muted-foreground">The World's Most Comprehensive Bee Knowledge System</div>
           </div>
@@ -283,11 +383,7 @@ export default function Index() {
             )}
             <div className="flex flex-col gap-1 max-w-[80%]">
               {msg.imagePreview && (
-                <img
-                  src={msg.imagePreview}
-                  alt="Attached"
-                  className="rounded-lg max-h-48 object-contain border border-border self-end"
-                />
+                <img src={msg.imagePreview} alt="Attached" className="rounded-lg max-h-48 object-contain border border-border self-end" />
               )}
               {msg.audioName && (
                 <div className="text-xs text-muted-foreground bg-muted border border-border rounded-lg px-3 py-1.5 self-end flex items-center gap-2">
@@ -295,11 +391,7 @@ export default function Index() {
                   {msg.audioName}
                 </div>
               )}
-              <div
-                className={`px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
-                  msg.role === "user" ? "chat-user" : "chat-assistant"
-                }`}
-              >
+              <div className={`px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "user" ? "chat-user" : "chat-assistant"}`}>
                 {msg.content}
               </div>
             </div>
@@ -328,7 +420,6 @@ export default function Index() {
 
       {/* Input area */}
       <div className="flex-shrink-0 border-t border-border bg-sidebar px-4 pb-4 pt-3">
-        {/* Quick suggestions when chat has messages */}
         {messages.length > 0 && (
           <div className="flex gap-2 flex-wrap mb-3 max-w-4xl mx-auto">
             {SUGGESTIONS.slice(0, 3).map((s) => (
@@ -343,7 +434,6 @@ export default function Index() {
           </div>
         )}
 
-        {/* Attachment previews */}
         {(attachedImage || attachedAudio) && (
           <div className="flex items-center gap-3 mb-3 max-w-4xl mx-auto">
             {imagePreviewUrl && (
@@ -372,9 +462,7 @@ export default function Index() {
           </div>
         )}
 
-        {/* Input form */}
         <form onSubmit={handleSubmit} className="flex gap-2 items-end max-w-4xl mx-auto">
-          {/* Media attach buttons */}
           <div className="flex flex-col gap-1.5 flex-shrink-0">
             <button
               type="button"
@@ -388,13 +476,12 @@ export default function Index() {
               type="button"
               onClick={() => audioInputRef.current?.click()}
               className="w-9 h-9 rounded-xl border border-border bg-muted hover:border-primary/50 hover:bg-muted/80 flex items-center justify-center transition-all text-muted-foreground hover:text-honey"
-              title="Attach audio"
+              title="Attach audio file"
             >
               <Mic className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Text input */}
           <textarea
             ref={textareaRef}
             value={input}
@@ -412,7 +499,22 @@ export default function Index() {
             }}
           />
 
-          {/* Send button */}
+          {/* Voice input button */}
+          {voiceSupported && (
+            <button
+              type="button"
+              onClick={toggleListening}
+              className={`flex-shrink-0 w-11 h-11 rounded-xl border flex items-center justify-center transition-all ${
+                isListening
+                  ? "bg-destructive text-destructive-foreground border-destructive animate-pulse"
+                  : "border-border bg-muted text-muted-foreground hover:text-honey hover:border-primary/50"
+              }`}
+              title={isListening ? "Stop listening" : "Voice input"}
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </button>
+          )}
+
           <button
             type="submit"
             disabled={(!input.trim() && !attachedImage && !attachedAudio) || isLoading}
@@ -422,21 +524,8 @@ export default function Index() {
           </button>
         </form>
 
-        {/* Hidden file inputs */}
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/gif"
-          className="hidden"
-          onChange={handleImageSelect}
-        />
-        <input
-          ref={audioInputRef}
-          type="file"
-          accept="audio/mp3,audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/m4a,audio/*"
-          className="hidden"
-          onChange={handleAudioSelect}
-        />
+        <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleImageSelect} />
+        <input ref={audioInputRef} type="file" accept="audio/mp3,audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/m4a,audio/*" className="hidden" onChange={handleAudioSelect} />
 
         <p className="text-center text-xs text-muted-foreground mt-2 max-w-4xl mx-auto">
           Beeyield AI — Specialized exclusively in bees, honey, apiculture, and pollination science
