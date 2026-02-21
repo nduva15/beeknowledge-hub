@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, X, User, Plus } from "lucide-react";
+import { Send, Loader2, Image, Mic, X, User, Plus, Sun, Moon } from "lucide-react";
 import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
+import { useTheme } from "@/hooks/use-theme";
 
 type Message = {
   id: string;
@@ -97,6 +98,7 @@ export default function Index() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [chatKey, setChatKey] = useState(0);
+  const { theme, toggleTheme } = useTheme();
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
@@ -229,12 +231,21 @@ export default function Index() {
             <div className="text-xs text-muted-foreground">The World's Most Comprehensive Bee Knowledge System</div>
           </div>
         </div>
-        <button
-          onClick={resetChat}
-          className="text-xs text-muted-foreground hover:text-foreground border border-border hover:border-primary/50 px-3 py-1.5 rounded-lg transition-all"
-        >
-          New Chat
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={resetChat}
+            className="text-xs text-muted-foreground hover:text-foreground border border-border hover:border-primary/50 px-3 py-1.5 rounded-lg transition-all"
+          >
+            New Chat
+          </button>
+        </div>
       </header>
 
       {/* Messages area */}
