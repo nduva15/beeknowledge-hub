@@ -297,8 +297,14 @@ export default function Index() {
   };
 
   const handleDeleteConversation = async (id: string) => {
+    await supabase.from("chat_messages").delete().eq("conversation_id", id);
     await supabase.from("conversations").delete().eq("id", id);
     if (conversationId === id) resetChat();
+    loadConversations();
+  };
+
+  const handleRenameConversation = async (id: string, newTitle: string) => {
+    await supabase.from("conversations").update({ title: newTitle }).eq("id", id);
     loadConversations();
   };
 
