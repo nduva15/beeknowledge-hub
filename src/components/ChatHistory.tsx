@@ -1,4 +1,5 @@
-import { MessageSquare, Trash2, Plus } from "lucide-react";
+import { useState } from "react";
+import { MessageSquare, Trash2, Plus, Pencil, Check, X } from "lucide-react";
 
 export type Conversation = {
   id: string;
@@ -12,6 +13,7 @@ interface ChatHistoryProps {
   onSelect: (id: string) => void;
   onNew: () => void;
   onDelete: (id: string) => void;
+  onRename: (id: string, newTitle: string) => void;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -22,17 +24,52 @@ export default function ChatHistory({
   onSelect,
   onNew,
   onDelete,
+  onRename,
   isOpen,
   onClose,
 }: ChatHistoryProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+
   if (!isOpen) return null;
+
+  const startEdit = (c: Conversation) => {
+    setEditingId(c.id);
+    setEditTitle(c.title);
+  };
+
+  const confirmEdit = () => {
+    if (editingId && editTitle.trim()) {
+      onRename(editingId, editTitle.trim());
+    }
+    setEditingId(null);
+    setEditTitle("");
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTitle("");
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Sidebar panel */}
       <div className="relative w-72 max-w-[80vw] h-full bg-card border-r border-border flex flex-col shadow-lg animate-fade-in">
         <div className="p-4 border-b border-border flex items-center justify-between">
           <h2 className="font-display font-bold text-foreground text-sm">Chat History</h2>
@@ -57,17 +94,58 @@ export default function ChatHistory({
                   ? "bg-primary/10 text-foreground border border-primary/30"
                   : "hover:bg-muted text-muted-foreground hover:text-foreground"
               }`}
-              onClick={() => { onSelect(c.id); onClose(); }}
+              onClick={() => {
+                if (editingId !== c.id) {
+                  onSelect(c.id);
+                  onClose();
+                }
+              }}
             >
               <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
-              <span className="flex-1 truncate text-xs">{c.title}</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete(c.id); }}
-                className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all p-0.5"
-                title="Delete conversation"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
+
+              {editingId === c.id ? (
+                <div className="flex-1 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") confirmEdit();
+                      if (e.key === "Escape") cancelEdit();
+                    }}
+                    className="flex-1 text-xs bg-muted border border-border rounded px-1.5 py-0.5 outline-none focus:border-primary/50 text-foreground"
+                    autoFocus
+                  />
+                  <button onClick={confirmEdit} className="text-primary hover:text-primary/80 p-0.5" title="Save">
+                    <Check className="w-3 h-3" />
+                  </button>
+                  <button onClick={cancelEdit} className="text-muted-foreground hover:text-foreground p-0.5" title="Cancel">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex-1 min-w-0">
+                    <span className="block truncate text-xs">{c.title}</span>
+                    <span className="block text-[10px] text-muted-foreground/60">{formatDate(c.updated_at)}</span>
+                  </div>
+                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-all">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); startEdit(c); }}
+                      className="text-muted-foreground hover:text-foreground p-0.5"
+                      title="Rename"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onDelete(c.id); }}
+                      className="text-muted-foreground hover:text-destructive p-0.5"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
