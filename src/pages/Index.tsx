@@ -317,6 +317,7 @@ export default function Index() {
         onSelect={loadConversation}
         onNew={() => { resetChat(); setHistoryOpen(false); }}
         onDelete={handleDeleteConversation}
+        onRename={handleRenameConversation}
         isOpen={historyOpen}
         onClose={() => setHistoryOpen(false)}
       />
