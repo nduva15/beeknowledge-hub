@@ -1,5 +1,16 @@
 import { useState } from "react";
-import { MessageSquare, Trash2, Plus, Pencil, Check, X } from "lucide-react";
+import { MessageSquare, Trash2, Plus, Pencil, Check, X, Search } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
 
 export type Conversation = {
   id: string;
@@ -30,8 +41,26 @@ export default function ChatHistory({
 }: ChatHistoryProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; title: string } | null>(null);
 
   if (!isOpen) return null;
+
+  const filteredConversations = conversations.filter((c) =>
+    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleDeleteClick = (e: React.MouseEvent, c: Conversation) => {
+    e.stopPropagation();
+    setDeleteConfirm({ id: c.id, title: c.title });
+  };
+
+  const confirmDelete = () => {
+    if (deleteConfirm) {
+      onDelete(deleteConfirm.id);
+      setDeleteConfirm(null);
+    }
+  };
 
   const startEdit = (c: Conversation) => {
     setEditingId(c.id);
