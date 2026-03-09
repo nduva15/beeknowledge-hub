@@ -327,10 +327,11 @@ export default function Index() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setHistoryOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground bg-muted"
             title="Chat history"
           >
             <History className="w-4 h-4" />
+            <span className="text-xs font-medium">History</span>
           </button>
           <img src={beeyieldLogo} alt="Beeyield" className="h-9 w-auto" />
           <div className="hidden sm:block">
