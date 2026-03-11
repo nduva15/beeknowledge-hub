@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug } from "lucide-react";
 import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
 import { useTheme } from "@/hooks/use-theme";
@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import ChatHistory, { type Conversation } from "@/components/ChatHistory";
 import AboutModal from "@/components/AboutModal";
 import MessageActions from "@/components/MessageActions";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
+import BeeGallery from "@/components/BeeGallery";
 
 type Message = {
   id: string;
@@ -107,6 +109,7 @@ export default function Index() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
@@ -344,6 +347,13 @@ export default function Index() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setGalleryOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Bee Species Gallery"
+          >
+            <Bug className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setAboutOpen(true)}
             className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
             title="About Beeyield AI"
@@ -428,8 +438,8 @@ export default function Index() {
                   {msg.audioName}
                 </div>
               )}
-              <div className={`px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "user" ? "chat-user" : "chat-assistant"}`}>
-                {msg.content}
+              <div className={`px-4 py-3 text-sm leading-relaxed ${msg.role === "user" ? "chat-user whitespace-pre-wrap" : "chat-assistant"}`}>
+                {msg.role === "assistant" ? <MarkdownRenderer content={msg.content} /> : msg.content}
               </div>
               {msg.role === "assistant" && msg.content && (
                 <MessageActions content={msg.content} />
@@ -574,6 +584,7 @@ export default function Index() {
 
       {/* About Modal */}
       <AboutModal open={aboutOpen} onOpenChange={setAboutOpen} />
+      <BeeGallery isOpen={galleryOpen} onClose={() => setGalleryOpen(false)} />
     </div>
   );
 }
