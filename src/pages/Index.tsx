@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug } from "lucide-react";
 import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
 import { useTheme } from "@/hooks/use-theme";
