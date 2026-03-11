@@ -431,8 +431,8 @@ export default function Index() {
                   {msg.audioName}
                 </div>
               )}
-              <div className={`px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "user" ? "chat-user" : "chat-assistant"}`}>
-                {msg.content}
+              <div className={`px-4 py-3 text-sm leading-relaxed ${msg.role === "user" ? "chat-user whitespace-pre-wrap" : "chat-assistant"}`}>
+                {msg.role === "assistant" ? <MarkdownRenderer content={msg.content} /> : msg.content}
               </div>
               {msg.role === "assistant" && msg.content && (
                 <MessageActions content={msg.content} />
