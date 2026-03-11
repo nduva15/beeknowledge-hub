@@ -584,6 +584,7 @@ export default function Index() {
 
       {/* About Modal */}
       <AboutModal open={aboutOpen} onOpenChange={setAboutOpen} />
+      <BeeGallery isOpen={galleryOpen} onClose={() => setGalleryOpen(false)} />
     </div>
   );
 }
