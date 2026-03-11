@@ -571,6 +571,12 @@ export default function Index() {
           Beeyield AI — Specialized exclusively in bees, honey, apiculture, and pollination science
         </p>
       </div>
+
+      {/* About Modal */}
+      <AboutModal open={aboutOpen} onOpenChange={setAboutOpen} />
+    </div>
+  );
+}
     </div>
   );
 }
