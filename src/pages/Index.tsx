@@ -9,6 +9,8 @@ import { supabase } from "@/integrations/supabase/client";
 import ChatHistory, { type Conversation } from "@/components/ChatHistory";
 import AboutModal from "@/components/AboutModal";
 import MessageActions from "@/components/MessageActions";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
+import BeeGallery from "@/components/BeeGallery";
 
 type Message = {
   id: string;
