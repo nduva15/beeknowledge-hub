@@ -109,6 +109,7 @@ export default function Index() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
