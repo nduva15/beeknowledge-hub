@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download } from "lucide-react";
 import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
 import { useTheme } from "@/hooks/use-theme";
@@ -7,6 +7,8 @@ import { useDeviceId } from "@/hooks/use-device-id";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { supabase } from "@/integrations/supabase/client";
 import ChatHistory, { type Conversation } from "@/components/ChatHistory";
+import AboutModal from "@/components/AboutModal";
+import MessageActions from "@/components/MessageActions";
 
 type Message = {
   id: string;
@@ -104,6 +106,7 @@ export default function Index() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
@@ -341,6 +344,32 @@ export default function Index() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setAboutOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="About Beeyield AI"
+          >
+            <Info className="w-4 h-4" />
+          </button>
+          {messages.length > 0 && (
+            <button
+              onClick={() => {
+                const text = messages.map(m => `${m.role === "user" ? "You" : "Beeyield AI"}: ${m.content}`).join("\n\n");
+                const blob = new Blob([text], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `beeyield-chat-${new Date().toISOString().slice(0, 10)}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success("Chat exported");
+              }}
+              className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+              title="Export chat"
+            >
+              <Download className="w-4 h-4" />
+            </button>
+          )}
+          <button
             onClick={toggleTheme}
             className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
@@ -382,7 +411,7 @@ export default function Index() {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex gap-3 max-w-4xl mx-auto w-full ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+            className={`group flex gap-3 max-w-4xl mx-auto w-full ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             {msg.role === "assistant" && (
               <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-background border border-border shadow-sm">
@@ -402,6 +431,9 @@ export default function Index() {
               <div className={`px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "user" ? "chat-user" : "chat-assistant"}`}>
                 {msg.content}
               </div>
+              {msg.role === "assistant" && msg.content && (
+                <MessageActions content={msg.content} />
+              )}
             </div>
             {msg.role === "user" && (
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center">
@@ -539,6 +571,9 @@ export default function Index() {
           Beeyield AI — Specialized exclusively in bees, honey, apiculture, and pollination science
         </p>
       </div>
+
+      {/* About Modal */}
+      <AboutModal open={aboutOpen} onOpenChange={setAboutOpen} />
     </div>
   );
 }
