@@ -411,7 +411,7 @@ export default function Index() {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex gap-3 max-w-4xl mx-auto w-full ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+            className={`group flex gap-3 max-w-4xl mx-auto w-full ${msg.role === "user" ? "justify-end" : "justify-start"}`}
           >
             {msg.role === "assistant" && (
               <div className="flex-shrink-0 w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-background border border-border shadow-sm">
@@ -431,6 +431,9 @@ export default function Index() {
               <div className={`px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${msg.role === "user" ? "chat-user" : "chat-assistant"}`}>
                 {msg.content}
               </div>
+              {msg.role === "assistant" && msg.content && (
+                <MessageActions content={msg.content} />
+              )}
             </div>
             {msg.role === "user" && (
               <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center">
