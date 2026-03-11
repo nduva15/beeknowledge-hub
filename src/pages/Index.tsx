@@ -347,6 +347,13 @@ export default function Index() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setGalleryOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Bee Species Gallery"
+          >
+            <Bug className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setAboutOpen(true)}
             className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
             title="About Beeyield AI"
