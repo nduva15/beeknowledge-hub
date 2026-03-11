@@ -344,6 +344,32 @@ export default function Index() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setAboutOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="About Beeyield AI"
+          >
+            <Info className="w-4 h-4" />
+          </button>
+          {messages.length > 0 && (
+            <button
+              onClick={() => {
+                const text = messages.map(m => `${m.role === "user" ? "You" : "Beeyield AI"}: ${m.content}`).join("\n\n");
+                const blob = new Blob([text], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `beeyield-chat-${new Date().toISOString().slice(0, 10)}.txt`;
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success("Chat exported");
+              }}
+              className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+              title="Export chat"
+            >
+              <Download className="w-4 h-4" />
+            </button>
+          )}
+          <button
             onClick={toggleTheme}
             className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
             title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
