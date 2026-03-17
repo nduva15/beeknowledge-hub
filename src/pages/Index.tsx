@@ -120,6 +120,8 @@ export default function Index() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const messageSeq = useRef(0);
+  const nextMessageId = useCallback(() => `m_${++messageSeq.current}`, []);
 
   // Voice input
   const handleVoiceResult = useCallback((text: string) => {
@@ -128,16 +130,7 @@ export default function Index() {
   }, []);
   const { isListening, isSupported: voiceSupported, toggleListening } = useVoiceInput(handleVoiceResult);
 
-  // Load conversations on mount
-  useEffect(() => {
-    loadConversations();
-  }, [deviceId]);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     const { data } = await supabase
       .from("conversations")
       .select("id, title, updated_at")
@@ -145,7 +138,16 @@ export default function Index() {
       .order("updated_at", { ascending: false })
       .limit(50);
     if (data) setConversations(data);
-  };
+  }, [deviceId]);
+
+  // Load conversations on mount
+  useEffect(() => {
+    loadConversations();
+  }, [loadConversations]);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const loadConversation = async (id: string) => {
     const { data } = await supabase
@@ -218,7 +220,7 @@ export default function Index() {
     }
 
     const userMsg: Message = {
-      id: Date.now().toString(),
+      id: nextMessageId(),
       role: "user",
       content: text,
       imagePreview: imagePreviewUrl || undefined,
@@ -263,7 +265,7 @@ export default function Index() {
             if (last?.role === "assistant") {
               return p.map((m, i) => (i === p.length - 1 ? { ...m, content: assistantContent } : m));
             }
-            return [...p, { id: (Date.now() + 1).toString(), role: "assistant" as const, content: assistantContent }];
+            return [...p, { id: nextMessageId(), role: "assistant" as const, content: assistantContent }];
           });
         },
         () => {
@@ -492,6 +494,8 @@ export default function Index() {
                 <button
                   onClick={() => { setAttachedImage(null); setImagePreviewUrl(null); if (imageInputRef.current) imageInputRef.current.value = ""; }}
                   className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+                  aria-label="Remove attached image"
+                  title="Remove attached image"
                 >
                   <X className="w-2.5 h-2.5" />
                 </button>
@@ -504,6 +508,8 @@ export default function Index() {
                 <button
                   onClick={() => { setAttachedAudio(null); if (audioInputRef.current) audioInputRef.current.value = ""; }}
                   className="ml-1 text-muted-foreground hover:text-foreground"
+                  aria-label="Remove attached audio"
+                  title="Remove attached audio"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -574,8 +580,8 @@ export default function Index() {
           </button>
         </form>
 
-        <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleImageSelect} />
-        <input ref={audioInputRef} type="file" accept="audio/mp3,audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/m4a,audio/*" className="hidden" onChange={handleAudioSelect} />
+        <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleImageSelect} aria-label="Attach image" title="Attach image" />
+        <input ref={audioInputRef} type="file" accept="audio/mp3,audio/mpeg,audio/wav,audio/ogg,audio/webm,audio/m4a,audio/*" className="hidden" onChange={handleAudioSelect} aria-label="Attach audio" title="Attach audio" />
 
         <p className="text-center text-xs text-muted-foreground mt-2 max-w-4xl mx-auto">
           Beeyield AI — Specialized exclusively in bees, honey, apiculture, and pollination science

@@ -80,6 +80,8 @@ export default function BeeChat() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messageSeq = useRef(0);
+  const nextMessageId = () => `m_${++messageSeq.current}`;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -87,7 +89,7 @@ export default function BeeChat() {
 
   const send = async (text: string) => {
     if (!text.trim() || isLoading) return;
-    const userMsg: Message = { id: Date.now().toString(), role: "user", content: text };
+    const userMsg: Message = { id: nextMessageId(), role: "user", content: text };
     setMessages((p) => [...p, userMsg]);
     setInput("");
     setIsLoading(true);
@@ -105,7 +107,7 @@ export default function BeeChat() {
             if (last?.role === "assistant") {
               return p.map((m, i) => i === p.length - 1 ? { ...m, content: assistantContent } : m);
             }
-            return [...p, { id: (Date.now() + 1).toString(), role: "assistant", content: assistantContent }];
+            return [...p, { id: nextMessageId(), role: "assistant", content: assistantContent }];
           });
         },
         () => setIsLoading(false),
