@@ -140,11 +140,6 @@ export default function Index() {
     if (data) setConversations(data);
   }, [deviceId]);
 
-  // Load conversations on mount
-  useEffect(() => {
-    loadConversations();
-  }, [loadConversations]);
-
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
