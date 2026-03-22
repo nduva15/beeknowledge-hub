@@ -1,4 +1,7 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+kueni
+m
+ly
+kimport { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
