@@ -112,6 +112,8 @@ export default function Index() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [diseasesOpen, setDiseasesOpen] = useState(false);
+  const [pollinationOpen, setPollinationOpen] = useState(false);
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
@@ -353,6 +355,20 @@ export default function Index() {
             <Bug className="w-4 h-4" />
           </button>
           <button
+            onClick={() => setDiseasesOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Bee Diseases & Health"
+          >
+            <HeartPulse className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setPollinationOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Pollination Data & Charts"
+          >
+            <BarChart3 className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setAboutOpen(true)}
             className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
             title="About Beeyield AI"
@@ -588,6 +604,8 @@ export default function Index() {
       {/* About Modal */}
       <AboutModal open={aboutOpen} onOpenChange={setAboutOpen} />
       <BeeGallery isOpen={galleryOpen} onClose={() => setGalleryOpen(false)} />
+      <BeeDiseasesPage isOpen={diseasesOpen} onClose={() => setDiseasesOpen(false)} />
+      <PollinationCharts isOpen={pollinationOpen} onClose={() => setPollinationOpen(false)} />
     </div>
   );
 }
