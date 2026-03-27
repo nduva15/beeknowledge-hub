@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
 import { useTheme } from "@/hooks/use-theme";
@@ -11,6 +11,8 @@ import AboutModal from "@/components/AboutModal";
 import MessageActions from "@/components/MessageActions";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import BeeGallery from "@/components/BeeGallery";
+import BeeDiseasesPage from "@/components/BeeDiseasesPage";
+import PollinationCharts from "@/components/PollinationCharts";
 
 type Message = {
   id: string;
