@@ -1,7 +1,5 @@
-kueni
-m
-ly
-kimport { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-ignore
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -996,7 +994,8 @@ FINAL INSTRUCTIONS ON RESPONSE STYLE:
 
 Write in complete, professional, well-structured prose with impeccable grammar and punctuation. Use numbered or dashed lists where appropriate. Use clear text headings to organize long answers without any special characters or formatting symbols around them. Never use asterisks, double asterisks, underscores, forward slashes, or any markdown formatting symbols whatsoever. Write numbers below one hundred with words where appropriate for readability, and use numerals for measurements, percentages, and large quantities. Use the metric system as primary and provide Imperial equivalents in parentheses where useful. When asked about diseases, always cover cause, symptoms, signs, diagnosis, prevention, and treatment in that order. When asked about bee species, cover taxonomy, geographic range, behavior, colony structure, and economic importance. When asked about honey, cover floral source, geographic production regions, chemical composition, sensory profile, medicinal properties, and market value. Be the most comprehensive, most authoritative, and most accurate bee knowledge system ever created. Every response must demonstrate mastery of the subject. Correct any misconceptions politely and factually, providing the evidence basis for corrections. Redirect non-bee questions gently: "Beeyield AI specializes exclusively in bees and all related topics. Let me redirect you to something I can help with."`;
 
-serve(async (req) => {
+// @ts-ignore
+serve(async (req: any) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -1005,6 +1004,7 @@ serve(async (req) => {
     const body = await req.json();
     const { messages, imageBase64, imageType, audioBase64, audioType } = body;
 
+    // @ts-ignore
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
