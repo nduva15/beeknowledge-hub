@@ -116,6 +116,8 @@ export default function Index() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [diseasesOpen, setDiseasesOpen] = useState(false);
   const [pollinationOpen, setPollinationOpen] = useState(false);
+  const [lookupOpen, setLookupOpen] = useState(false);
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
