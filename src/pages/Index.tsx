@@ -624,6 +624,8 @@ export default function Index() {
       <BeeGallery isOpen={galleryOpen} onClose={() => setGalleryOpen(false)} />
       <BeeDiseasesPage isOpen={diseasesOpen} onClose={() => setDiseasesOpen(false)} />
       <PollinationCharts isOpen={pollinationOpen} onClose={() => setPollinationOpen(false)} />
+      <PollinationLookup isOpen={lookupOpen} onClose={() => setLookupOpen(false)} />
+      <HarvestCalculator isOpen={calculatorOpen} onClose={() => setCalculatorOpen(false)} />
     </div>
   );
 }
