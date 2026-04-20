@@ -373,6 +373,20 @@ export default function Index() {
             <BarChart3 className="w-4 h-4" />
           </button>
           <button
+            onClick={() => setLookupOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Pollination Stocking Density Lookup"
+          >
+            <Flower2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setCalculatorOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Harvest Calculator"
+          >
+            <Calculator className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setAboutOpen(true)}
             className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
             title="About Beeyield AI"
