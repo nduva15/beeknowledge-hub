@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3 } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3, Flower2, Calculator } from "lucide-react";
 import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
 import { useTheme } from "@/hooks/use-theme";
@@ -13,6 +13,8 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import BeeGallery from "@/components/BeeGallery";
 import BeeDiseasesPage from "@/components/BeeDiseasesPage";
 import PollinationCharts from "@/components/PollinationCharts";
+import PollinationLookup from "@/components/PollinationLookup";
+import HarvestCalculator from "@/components/HarvestCalculator";
 
 type Message = {
   id: string;
@@ -114,6 +116,8 @@ export default function Index() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [diseasesOpen, setDiseasesOpen] = useState(false);
   const [pollinationOpen, setPollinationOpen] = useState(false);
+  const [lookupOpen, setLookupOpen] = useState(false);
+  const [calculatorOpen, setCalculatorOpen] = useState(false);
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
@@ -369,6 +373,20 @@ export default function Index() {
             <BarChart3 className="w-4 h-4" />
           </button>
           <button
+            onClick={() => setLookupOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Pollination Stocking Density Lookup"
+          >
+            <Flower2 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setCalculatorOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Harvest Calculator"
+          >
+            <Calculator className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setAboutOpen(true)}
             className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
             title="About Beeyield AI"
@@ -606,6 +624,8 @@ export default function Index() {
       <BeeGallery isOpen={galleryOpen} onClose={() => setGalleryOpen(false)} />
       <BeeDiseasesPage isOpen={diseasesOpen} onClose={() => setDiseasesOpen(false)} />
       <PollinationCharts isOpen={pollinationOpen} onClose={() => setPollinationOpen(false)} />
+      <PollinationLookup isOpen={lookupOpen} onClose={() => setLookupOpen(false)} />
+      <HarvestCalculator isOpen={calculatorOpen} onClose={() => setCalculatorOpen(false)} />
     </div>
   );
 }
