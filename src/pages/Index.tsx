@@ -13,6 +13,8 @@ import MarkdownRenderer from "@/components/MarkdownRenderer";
 import BeeGallery from "@/components/BeeGallery";
 import BeeDiseasesPage from "@/components/BeeDiseasesPage";
 import PollinationCharts from "@/components/PollinationCharts";
+import PollinationLookup from "@/components/PollinationLookup";
+import HarvestCalculator from "@/components/HarvestCalculator";
 
 type Message = {
   id: string;
