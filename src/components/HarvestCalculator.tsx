@@ -1,10 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
-import { X, Calculator, Loader2, Sparkles, Save, FileDown, History, Trash2 } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { X, Calculator, Loader2, Sparkles, Save, FileDown, History, Trash2, Copy, TrendingUp } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { supabase } from "@/integrations/supabase/client";
 import { useDeviceId } from "@/hooks/use-device-id";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 const CROP_OPTIONS = [
   "Almonds (CA)", "Apples", "Blueberries (highbush)", "Cranberries", "Avocado (Hass)",
@@ -190,6 +191,33 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
     toast.success("Loaded saved run");
   };
 
+  const duplicateRun = (r: SavedRun) => {
+    setHives(r.hives);
+    setAcres(Number(r.acres));
+    setCrop(r.crop);
+    setFrameType(r.frame_type);
+    setFillPct(r.fill_pct);
+    setHhi(r.hhi);
+    setRegion(r.region);
+    setAiOpen(false);
+    setAiText("");
+    setHistoryOpen(false);
+    toast.success("Run cloned — tweak any parameter for a what-if scenario");
+  };
+
+  // HHI / harvest trend data (oldest → newest for time-series)
+  const trendData = useMemo(() => {
+    return [...savedRuns]
+      .reverse()
+      .map((r, i) => ({
+        idx: i + 1,
+        date: new Date(r.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+        hhi: r.hhi,
+        harvest: Number(r.local_estimate_kg ?? 0),
+        crop: r.crop,
+      }));
+  }, [savedRuns]);
+
   const deleteRun = async (id: string) => {
     const { error } = await supabase.from("harvest_runs").delete().eq("id", id);
     if (error) { toast.error("Delete failed"); return; }
@@ -324,28 +352,65 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
             {savedRuns.length === 0 ? (
               <p className="text-xs text-muted-foreground">No saved runs yet. Click Save below to track HHI improvements over time.</p>
             ) : (
-              <div className="space-y-2 max-h-72 overflow-y-auto custom-scroll">
-                {savedRuns.map((r) => (
-                  <div key={r.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:border-primary/40 bg-muted/20">
-                    <button onClick={() => loadRun(r)} className="flex-1 text-left">
-                      <div className="text-sm font-medium text-foreground">
-                        {r.crop} · {r.hives} hives · <span className="text-honey">{Number(r.local_estimate_kg ?? 0).toFixed(0)} kg</span>
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        HHI {r.hhi} · fill {r.fill_pct}% · {r.region} · {new Date(r.created_at).toLocaleDateString()}
-                        {r.ai_forecast ? " · AI ✓" : ""}
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => deleteRun(r.id)}
-                      className="w-8 h-8 rounded-lg border border-border hover:border-destructive/50 hover:text-destructive text-muted-foreground flex items-center justify-center"
-                      title="Delete run"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+              <>
+                {trendData.length >= 2 && (
+                  <div className="mb-4 p-4 rounded-lg border border-border bg-muted/10">
+                    <div className="flex items-center gap-2 mb-3">
+                      <TrendingUp className="w-4 h-4 text-honey" />
+                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">HHI & Apiary harvest trend</h4>
+                    </div>
+                    <div className="h-56 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={trendData} margin={{ top: 5, right: 12, left: 0, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                          <YAxis yAxisId="left" stroke="hsl(var(--honey))" fontSize={11} domain={[0, 100]} label={{ value: "HHI", angle: -90, position: "insideLeft", fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+                          <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--primary))" fontSize={11} label={{ value: "kg", angle: 90, position: "insideRight", fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+                          <Tooltip
+                            contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 12 }}
+                            labelStyle={{ color: "hsl(var(--foreground))" }}
+                          />
+                          <Legend wrapperStyle={{ fontSize: 11 }} />
+                          <Line yAxisId="left" type="monotone" dataKey="hhi" name="HHI (0–100)" stroke="hsl(var(--honey))" strokeWidth={2} dot={{ r: 3 }} />
+                          <Line yAxisId="right" type="monotone" dataKey="harvest" name="Harvest (kg)" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ r: 3 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-2 italic">
+                      Track how HHI improvements lift apiary harvest across saved runs.
+                    </p>
                   </div>
-                ))}
-              </div>
+                )}
+                <div className="space-y-2 max-h-72 overflow-y-auto custom-scroll">
+                  {savedRuns.map((r) => (
+                    <div key={r.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:border-primary/40 bg-muted/20">
+                      <button onClick={() => loadRun(r)} className="flex-1 text-left">
+                        <div className="text-sm font-medium text-foreground">
+                          {r.crop} · {r.hives} hives · <span className="text-honey">{Number(r.local_estimate_kg ?? 0).toFixed(0)} kg</span>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          HHI {r.hhi} · fill {r.fill_pct}% · {r.region} · {new Date(r.created_at).toLocaleDateString()}
+                          {r.ai_forecast ? " · AI ✓" : ""}
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => duplicateRun(r)}
+                        className="w-8 h-8 rounded-lg border border-border hover:border-honey/50 hover:text-honey text-muted-foreground flex items-center justify-center"
+                        title="Duplicate run for what-if scenario"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => deleteRun(r.id)}
+                        className="w-8 h-8 rounded-lg border border-border hover:border-destructive/50 hover:text-destructive text-muted-foreground flex items-center justify-center"
+                        title="Delete run"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         )}
