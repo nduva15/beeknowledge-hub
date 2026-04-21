@@ -283,6 +283,11 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
     writeLine(`Hives: ${hives}    Crop: ${crop}    Acres: ${acres}`);
     writeLine(`Frame type: ${frameType} (${frame.kgPerFrame} kg/frame)    Frames/hive: ${framesPerHive}`);
     writeLine(`Fill: ${fillPct}%    HHI: ${hhi}    Region: ${region}`);
+    if (notes.trim()) {
+      y += 4;
+      writeLine("Notes", 12, true, [180, 100, 0]);
+      writeLine(notes.trim(), 10);
+    }
     y += 8;
 
     writeLine("Worked Math (50/50 Ethical Rule)", 14, true, [180, 100, 0]);
@@ -324,7 +329,8 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
       `BeeYield Harvest Forecast\n` +
       `${hives} hives · ${crop} · ${acres} acres\n` +
       `Frame: ${frameType} @ ${fillPct}% fill · HHI ${hhi}\n` +
-      `Estimated apiary harvest: ${apiaryHarvest.toFixed(0)} kg (${ethicalPerHive.toFixed(1)} kg/hive ethical)\n`;
+      `Estimated apiary harvest: ${apiaryHarvest.toFixed(0)} kg (${ethicalPerHive.toFixed(1)} kg/hive ethical)\n` +
+      (notes.trim() ? `\nNotes: ${notes.trim()}\n` : "");
     try {
       if (navigator.share) {
         await navigator.share({ title: "BeeYield Harvest Forecast", text: summary });
@@ -333,6 +339,44 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
         toast.success("Summary copied to clipboard");
       }
     } catch { /* user canceled */ }
+  };
+
+  const exportForecastCSV = () => {
+    const csvEscape = (v: string | number) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const rows: (string | number)[][] = [
+      ["Field", "Value"],
+      ["Generated", new Date().toISOString()],
+      ["Hives", hives],
+      ["Crop", crop],
+      ["Acres", acres],
+      ["Frame type", frameType],
+      ["kg per frame", frame.kgPerFrame],
+      ["Frames per hive", framesPerHive],
+      ["Frame fill %", fillPct],
+      ["HHI", hhi],
+      ["Region", region],
+      ["Reserve held back (kg)", reserve],
+      ["Gross per hive (kg)", grossPerHive.toFixed(2)],
+      ["Net per hive (kg)", netPerHive.toFixed(2)],
+      ["Ethical per hive (kg)", ethicalPerHive.toFixed(2)],
+      ["Apiary total (kg)", apiaryHarvest.toFixed(2)],
+      ["Notes", notes.trim()],
+      ["AI forecast (markdown)", aiText || ""],
+    ];
+    const csv = rows.map((r) => r.map(csvEscape).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `beeyield-harvest-${crop.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("CSV exported");
   };
 
   if (!isOpen) return null;
