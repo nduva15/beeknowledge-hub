@@ -83,6 +83,7 @@ export type Database = {
           hives: number
           id: string
           local_estimate_kg: number | null
+          notes: string | null
           region: string
         }
         Insert: {
@@ -97,6 +98,7 @@ export type Database = {
           hives: number
           id?: string
           local_estimate_kg?: number | null
+          notes?: string | null
           region: string
         }
         Update: {
@@ -111,6 +113,7 @@ export type Database = {
           hives?: number
           id?: string
           local_estimate_kg?: number | null
+          notes?: string | null
           region?: string
         }
         Relationships: []
