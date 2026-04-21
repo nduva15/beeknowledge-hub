@@ -338,8 +338,30 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
                 Select at least 2 crops above to compare.
               </div>
             ) : (
-              <div className="rounded-xl border border-border bg-card overflow-hidden mb-6">
-                <div className="overflow-x-auto">
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-xs text-muted-foreground">
+                    Comparing <span className="text-honey font-semibold">{compareCrops.length}</span> crops at <span className="text-foreground font-semibold">{acres} {unit === "acre" ? "acres" : "ha"}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={exportCompareCSV}
+                      className="px-3 h-9 rounded-lg border border-border hover:border-primary/50 text-xs flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                      title="Export comparison as CSV"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5" /> CSV
+                    </button>
+                    <button
+                      onClick={exportComparePDF}
+                      className="px-3 h-9 rounded-lg border border-honey/40 bg-honey/5 hover:bg-honey/10 text-honey text-xs flex items-center gap-1.5"
+                      title="Export comparison as PDF"
+                    >
+                      <FileDown className="w-3.5 h-3.5" /> PDF
+                    </button>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-border bg-card overflow-hidden mb-6">
+                  <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
                       <tr>
