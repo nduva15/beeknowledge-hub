@@ -231,14 +231,83 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
               <p className="text-xs text-muted-foreground">BeeYield PSI v2 model • 14 crops • Frames-per-acre math</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-9 h-9 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center text-muted-foreground hover:text-foreground"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setBrandOpen((v) => !v)}
+              className={`px-3 h-9 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
+                brand.farmName || brand.logoDataUrl
+                  ? "border-honey/40 bg-honey/5 text-honey"
+                  : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+              }`}
+              title="Set farm name and logo for exported PDFs"
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              {brand.farmName ? brand.farmName.slice(0, 16) : "Farm branding"}
+            </button>
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center text-muted-foreground hover:text-foreground"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
+
+        {brandOpen && (
+          <div className="mb-4 p-4 rounded-xl border border-honey/30 bg-honey/5">
+            <div className="flex items-center gap-2 mb-3">
+              <Building2 className="w-4 h-4 text-honey" />
+              <h3 className="text-sm font-semibold text-foreground">Farm branding for exported PDFs</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+              <div className="md:col-span-2">
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Farm name</label>
+                <input
+                  type="text"
+                  value={brand.farmName}
+                  onChange={(e) => setBrand((b) => ({ ...b, farmName: e.target.value.slice(0, 60) }))}
+                  placeholder="e.g. Kibwezi Apiaries Ltd"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:border-primary/50 outline-none"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                {brand.logoDataUrl && (
+                  <img
+                    src={brand.logoDataUrl}
+                    alt="Farm logo preview"
+                    className="w-12 h-12 rounded-lg object-contain border border-border bg-background"
+                  />
+                )}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) onLogoUpload(f); e.target.value = ""; }}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="px-3 h-9 rounded-lg border border-border hover:border-primary/50 text-xs flex items-center gap-1.5"
+                >
+                  <Upload className="w-3.5 h-3.5" /> {brand.logoDataUrl ? "Replace logo" : "Upload logo"}
+                </button>
+                {brand.logoDataUrl && (
+                  <button
+                    onClick={() => setBrand((b) => ({ ...b, logoDataUrl: null }))}
+                    className="w-9 h-9 rounded-lg border border-border hover:border-destructive/50 hover:text-destructive text-muted-foreground flex items-center justify-center"
+                    title="Remove logo"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-2 italic">
+              PNG/JPG under 600 KB. Branding appears on the cover band and page footer of every Pollination Compare PDF you export. Stored on this device only.
+            </p>
+          </div>
+        )}
 
         {/* Mode toggle */}
         <div className="flex gap-2 mb-4 p-1 rounded-xl border border-border bg-muted/20 w-fit">
