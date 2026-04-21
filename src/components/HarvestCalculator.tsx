@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { X, Calculator, Loader2, Sparkles, Save, FileDown, History, Trash2, Copy, TrendingUp } from "lucide-react";
+import { X, Calculator, Loader2, Sparkles, Save, FileDown, History, Trash2, Copy, TrendingUp, FileSpreadsheet, Link2, StickyNote } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
@@ -33,6 +33,7 @@ type SavedRun = {
   region: string;
   local_estimate_kg: number | null;
   ai_forecast: string | null;
+  notes: string | null;
   created_at: string;
 };
 
@@ -51,6 +52,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
   const [fillPct, setFillPct] = useState(75);
   const [hhi, setHhi] = useState(80);
   const [region, setRegion] = useState("Kenya / East Africa");
+  const [notes, setNotes] = useState("");
 
   // Local quick estimate
   const frame = FRAME_TYPES.find((f) => f.name === frameType)!;
@@ -75,6 +77,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [savedRuns, setSavedRuns] = useState<SavedRun[]>([]);
   const [saving, setSaving] = useState(false);
+  const [trendOnlyAI, setTrendOnlyAI] = useState(false);
 
   const loadRuns = useCallback(async () => {
     const { data, error } = await supabase
@@ -162,6 +165,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
       fill_pct: fillPct, hhi, region,
       local_estimate_kg: Number(apiaryHarvest.toFixed(2)),
       ai_forecast: aiText || null,
+      notes: notes.trim() || null,
     });
     setSaving(false);
     if (error) {
@@ -172,6 +176,18 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
     loadRuns();
   };
 
+  const copyShareLink = async (id: string) => {
+    const url = `${window.location.origin}/shared-run/${id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "BeeYield Harvest Forecast", url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Share link copied — send to your farm partners");
+      }
+    } catch { /* user cancelled */ }
+  };
+
   const loadRun = (r: SavedRun) => {
     setHives(r.hives);
     setAcres(Number(r.acres));
@@ -180,6 +196,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
     setFillPct(r.fill_pct);
     setHhi(r.hhi);
     setRegion(r.region);
+    setNotes(r.notes || "");
     if (r.ai_forecast) {
       setAiText(r.ai_forecast);
       setAiOpen(true);
@@ -199,6 +216,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
     setFillPct(r.fill_pct);
     setHhi(r.hhi);
     setRegion(r.region);
+    setNotes((r.notes ? r.notes + "\n" : "") + "[clone] what-if scenario based on " + new Date(r.created_at).toLocaleDateString());
     setAiOpen(false);
     setAiText("");
     setHistoryOpen(false);
@@ -208,6 +226,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
   // HHI / harvest trend data (oldest → newest for time-series)
   const trendData = useMemo(() => {
     return [...savedRuns]
+      .filter((r) => (trendOnlyAI ? !!r.ai_forecast : true))
       .reverse()
       .map((r, i) => ({
         idx: i + 1,
@@ -216,7 +235,8 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
         harvest: Number(r.local_estimate_kg ?? 0),
         crop: r.crop,
       }));
-  }, [savedRuns]);
+  }, [savedRuns, trendOnlyAI]);
+
 
   const deleteRun = async (id: string) => {
     const { error } = await supabase.from("harvest_runs").delete().eq("id", id);
@@ -263,6 +283,11 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
     writeLine(`Hives: ${hives}    Crop: ${crop}    Acres: ${acres}`);
     writeLine(`Frame type: ${frameType} (${frame.kgPerFrame} kg/frame)    Frames/hive: ${framesPerHive}`);
     writeLine(`Fill: ${fillPct}%    HHI: ${hhi}    Region: ${region}`);
+    if (notes.trim()) {
+      y += 4;
+      writeLine("Notes", 12, true, [180, 100, 0]);
+      writeLine(notes.trim(), 10);
+    }
     y += 8;
 
     writeLine("Worked Math (50/50 Ethical Rule)", 14, true, [180, 100, 0]);
@@ -304,7 +329,8 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
       `BeeYield Harvest Forecast\n` +
       `${hives} hives · ${crop} · ${acres} acres\n` +
       `Frame: ${frameType} @ ${fillPct}% fill · HHI ${hhi}\n` +
-      `Estimated apiary harvest: ${apiaryHarvest.toFixed(0)} kg (${ethicalPerHive.toFixed(1)} kg/hive ethical)\n`;
+      `Estimated apiary harvest: ${apiaryHarvest.toFixed(0)} kg (${ethicalPerHive.toFixed(1)} kg/hive ethical)\n` +
+      (notes.trim() ? `\nNotes: ${notes.trim()}\n` : "");
     try {
       if (navigator.share) {
         await navigator.share({ title: "BeeYield Harvest Forecast", text: summary });
@@ -313,6 +339,44 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
         toast.success("Summary copied to clipboard");
       }
     } catch { /* user canceled */ }
+  };
+
+  const exportForecastCSV = () => {
+    const csvEscape = (v: string | number) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const rows: (string | number)[][] = [
+      ["Field", "Value"],
+      ["Generated", new Date().toISOString()],
+      ["Hives", hives],
+      ["Crop", crop],
+      ["Acres", acres],
+      ["Frame type", frameType],
+      ["kg per frame", frame.kgPerFrame],
+      ["Frames per hive", framesPerHive],
+      ["Frame fill %", fillPct],
+      ["HHI", hhi],
+      ["Region", region],
+      ["Reserve held back (kg)", reserve],
+      ["Gross per hive (kg)", grossPerHive.toFixed(2)],
+      ["Net per hive (kg)", netPerHive.toFixed(2)],
+      ["Ethical per hive (kg)", ethicalPerHive.toFixed(2)],
+      ["Apiary total (kg)", apiaryHarvest.toFixed(2)],
+      ["Notes", notes.trim()],
+      ["AI forecast (markdown)", aiText || ""],
+    ];
+    const csv = rows.map((r) => r.map(csvEscape).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `beeyield-harvest-${crop.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("CSV exported");
   };
 
   if (!isOpen) return null;
@@ -348,7 +412,18 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
 
         {historyOpen && (
           <div className="mb-6 p-4 rounded-xl border border-border bg-card">
-            <h3 className="font-display text-sm font-bold text-foreground mb-3">Saved harvest runs</h3>
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <h3 className="font-display text-sm font-bold text-foreground">Saved harvest runs</h3>
+              <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={trendOnlyAI}
+                  onChange={(e) => setTrendOnlyAI(e.target.checked)}
+                  className="accent-honey w-3.5 h-3.5"
+                />
+                Trend chart: AI-forecasted runs only
+              </label>
+            </div>
             {savedRuns.length === 0 ? (
               <p className="text-xs text-muted-foreground">No saved runs yet. Click Save below to track HHI improvements over time.</p>
             ) : (
@@ -377,36 +452,57 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
                       </ResponsiveContainer>
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-2 italic">
-                      Track how HHI improvements lift apiary harvest across saved runs.
+                      Track how HHI improvements lift apiary harvest across saved runs
+                      {trendOnlyAI ? " (showing AI-forecast runs only)" : ""}.
                     </p>
+                  </div>
+                )}
+                {trendData.length < 2 && trendOnlyAI && savedRuns.length >= 2 && (
+                  <div className="mb-4 p-3 rounded-lg border border-dashed border-border text-xs text-muted-foreground">
+                    Fewer than 2 runs include an AI forecast. Toggle off "AI-forecasted runs only" to see all saved runs in the chart.
                   </div>
                 )}
                 <div className="space-y-2 max-h-72 overflow-y-auto custom-scroll">
                   {savedRuns.map((r) => (
                     <div key={r.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border hover:border-primary/40 bg-muted/20">
-                      <button onClick={() => loadRun(r)} className="flex-1 text-left">
-                        <div className="text-sm font-medium text-foreground">
+                      <button onClick={() => loadRun(r)} className="flex-1 text-left min-w-0">
+                        <div className="text-sm font-medium text-foreground truncate">
                           {r.crop} · {r.hives} hives · <span className="text-honey">{Number(r.local_estimate_kg ?? 0).toFixed(0)} kg</span>
                         </div>
                         <div className="text-xs text-muted-foreground">
                           HHI {r.hhi} · fill {r.fill_pct}% · {r.region} · {new Date(r.created_at).toLocaleDateString()}
                           {r.ai_forecast ? " · AI ✓" : ""}
                         </div>
+                        {r.notes && (
+                          <div className="text-xs text-foreground/70 mt-1 flex items-start gap-1.5">
+                            <StickyNote className="w-3 h-3 mt-0.5 shrink-0 text-honey" />
+                            <span className="line-clamp-2 italic">{r.notes}</span>
+                          </div>
+                        )}
                       </button>
-                      <button
-                        onClick={() => duplicateRun(r)}
-                        className="w-8 h-8 rounded-lg border border-border hover:border-honey/50 hover:text-honey text-muted-foreground flex items-center justify-center"
-                        title="Duplicate run for what-if scenario"
-                      >
-                        <Copy className="w-3.5 h-3.5" />
-                      </button>
-                      <button
-                        onClick={() => deleteRun(r.id)}
-                        className="w-8 h-8 rounded-lg border border-border hover:border-destructive/50 hover:text-destructive text-muted-foreground flex items-center justify-center"
-                        title="Delete run"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => copyShareLink(r.id)}
+                          className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 hover:text-primary text-muted-foreground flex items-center justify-center"
+                          title="Copy read-only share link for farm partners"
+                        >
+                          <Link2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => duplicateRun(r)}
+                          className="w-8 h-8 rounded-lg border border-border hover:border-honey/50 hover:text-honey text-muted-foreground flex items-center justify-center"
+                          title="Duplicate run for what-if scenario"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => deleteRun(r.id)}
+                          className="w-8 h-8 rounded-lg border border-border hover:border-destructive/50 hover:text-destructive text-muted-foreground flex items-center justify-center"
+                          title="Delete run"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -449,6 +545,18 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
               <option>Temperate (US/EU)</option>
             </select>
           </Field>
+          <div className="md:col-span-2">
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
+              <StickyNote className="w-3 h-3 text-honey" /> Notes (what changed in this what-if scenario?)
+            </label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="e.g. Bumped HHI from 70 to 82 after Apivar treatment; tested wider frame fill assumption."
+              rows={2}
+              className={`${inputCls} resize-y min-h-[60px]`}
+            />
+          </div>
         </div>
 
         {/* Quick local estimate */}
@@ -477,21 +585,31 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
         </button>
 
         {/* Action bar: Save / PDF / Share */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+        {/* Action bar: Save / PDF / CSV / Share */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
           <button
             onClick={saveRun}
             disabled={saving}
             className="px-4 py-2.5 rounded-lg border border-honey/40 bg-honey/5 hover:bg-honey/10 text-honey font-medium text-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save run to history
+            Save run
           </button>
           <button
             onClick={exportPDF}
             className="px-4 py-2.5 rounded-lg border border-border hover:border-primary/50 text-foreground font-medium text-sm flex items-center justify-center gap-2"
+            title="Export the full forecast card (inputs, worked math, AI forecast, notes) as a PDF"
           >
             <FileDown className="w-4 h-4" />
-            Export PDF report
+            Export PDF
+          </button>
+          <button
+            onClick={exportForecastCSV}
+            className="px-4 py-2.5 rounded-lg border border-border hover:border-primary/50 text-foreground font-medium text-sm flex items-center justify-center gap-2"
+            title="Export numeric inputs + AI forecast as CSV"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Export CSV
           </button>
           <button
             onClick={sharePDF}

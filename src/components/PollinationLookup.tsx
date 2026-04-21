@@ -1,7 +1,17 @@
-import { useMemo, useState } from "react";
-import { X, Sprout, Flower2, GitCompare, Calculator, FileDown, FileSpreadsheet } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { X, Sprout, Flower2, GitCompare, Calculator, FileDown, FileSpreadsheet, Building2, Upload, Trash2 } from "lucide-react";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
+
+const BRAND_KEY = "beeyield-farm-brand";
+type Brand = { farmName: string; logoDataUrl: string | null };
+const loadBrand = (): Brand => {
+  try {
+    const raw = localStorage.getItem(BRAND_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch { /* ignore */ }
+  return { farmName: "", logoDataUrl: null };
+};
 
 type Crop = {
   name: string;
@@ -41,6 +51,24 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
   const [cropName, setCropName] = useState(CROPS[0].name);
   const [acres, setAcres] = useState<number>(10);
   const [unit, setUnit] = useState<"acre" | "ha">("acre");
+
+  // Farm branding (persisted in localStorage, used on exported PDF cover band)
+  const [brand, setBrand] = useState<Brand>(loadBrand);
+  const [brandOpen, setBrandOpen] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    try { localStorage.setItem(BRAND_KEY, JSON.stringify(brand)); } catch { /* ignore */ }
+  }, [brand]);
+
+  const onLogoUpload = (file: File) => {
+    if (file.size > 600_000) {
+      toast.error("Logo must be under 600 KB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setBrand((b) => ({ ...b, logoDataUrl: typeof reader.result === "string" ? reader.result : null }));
+    reader.readAsDataURL(file);
+  };
 
   // Compare mode state
   const [compareCrops, setCompareCrops] = useState<string[]>([CROPS[0].name, CROPS[2].name]);
@@ -114,23 +142,43 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
-    // Header band
+    // Cover band — BeeYield brand colour with optional farm logo + farm name
     doc.setFillColor(245, 158, 11);
-    doc.rect(0, 0, pageW, 60, "F");
+    doc.rect(0, 0, pageW, 78, "F");
+
+    // Logo (left). If present, draw 56x56 inside the band.
+    let textStartX = margin;
+    if (brand.logoDataUrl) {
+      try {
+        const m = brand.logoDataUrl.match(/^data:image\/(png|jpeg|jpg);/i);
+        const fmt = m && /jpe?g/i.test(m[1]) ? "JPEG" : "PNG";
+        doc.addImage(brand.logoDataUrl, fmt, margin, 11, 56, 56);
+        textStartX = margin + 70;
+      } catch { /* malformed logo — skip */ }
+    }
+
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("BeeYield Pollination Compare", margin, 32);
-    doc.setFontSize(10);
+    doc.setFontSize(16);
+    if (brand.farmName.trim()) {
+      doc.text(brand.farmName.trim(), textStartX, 28);
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "normal");
+      doc.text("Pollination Comparison Report · BeeYield", textStartX, 46);
+    } else {
+      doc.setFontSize(18);
+      doc.text("BeeYield Pollination Compare", textStartX, 34);
+    }
+    doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.text(
       `${acres} ${unit === "acre" ? "acres" : "hectares"} · ${compareCrops.length} crops · ${new Date().toLocaleString()}`,
-      margin,
-      48,
+      textStartX,
+      brand.farmName.trim() ? 62 : 52,
     );
 
     // Table
-    let y = 90;
+    let y = 108;
     const colCount = headers.length;
     const colW = (pageW - margin * 2) / colCount;
     const rowH = 22;
@@ -160,7 +208,10 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(150);
-      doc.text(`BeeYield Pollination Lookup • Page ${i} / ${total}`, pageW - margin, pageH - 16, { align: "right" });
+      const footer = brand.farmName.trim()
+        ? `${brand.farmName.trim()} · BeeYield Pollination · Page ${i} / ${total}`
+        : `BeeYield Pollination Lookup · Page ${i} / ${total}`;
+      doc.text(footer, pageW - margin, pageH - 16, { align: "right" });
     }
 
     doc.save(`beeyield-pollination-compare-${Date.now()}.pdf`);
@@ -180,14 +231,83 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
               <p className="text-xs text-muted-foreground">BeeYield PSI v2 model • 14 crops • Frames-per-acre math</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-9 h-9 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center text-muted-foreground hover:text-foreground"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setBrandOpen((v) => !v)}
+              className={`px-3 h-9 rounded-lg border text-xs flex items-center gap-1.5 transition-colors ${
+                brand.farmName || brand.logoDataUrl
+                  ? "border-honey/40 bg-honey/5 text-honey"
+                  : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
+              }`}
+              title="Set farm name and logo for exported PDFs"
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              {brand.farmName ? brand.farmName.slice(0, 16) : "Farm branding"}
+            </button>
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center text-muted-foreground hover:text-foreground"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
+
+        {brandOpen && (
+          <div className="mb-4 p-4 rounded-xl border border-honey/30 bg-honey/5">
+            <div className="flex items-center gap-2 mb-3">
+              <Building2 className="w-4 h-4 text-honey" />
+              <h3 className="text-sm font-semibold text-foreground">Farm branding for exported PDFs</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+              <div className="md:col-span-2">
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Farm name</label>
+                <input
+                  type="text"
+                  value={brand.farmName}
+                  onChange={(e) => setBrand((b) => ({ ...b, farmName: e.target.value.slice(0, 60) }))}
+                  placeholder="e.g. Kibwezi Apiaries Ltd"
+                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:border-primary/50 outline-none"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                {brand.logoDataUrl && (
+                  <img
+                    src={brand.logoDataUrl}
+                    alt="Farm logo preview"
+                    className="w-12 h-12 rounded-lg object-contain border border-border bg-background"
+                  />
+                )}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) onLogoUpload(f); e.target.value = ""; }}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileRef.current?.click()}
+                  className="px-3 h-9 rounded-lg border border-border hover:border-primary/50 text-xs flex items-center gap-1.5"
+                >
+                  <Upload className="w-3.5 h-3.5" /> {brand.logoDataUrl ? "Replace logo" : "Upload logo"}
+                </button>
+                {brand.logoDataUrl && (
+                  <button
+                    onClick={() => setBrand((b) => ({ ...b, logoDataUrl: null }))}
+                    className="w-9 h-9 rounded-lg border border-border hover:border-destructive/50 hover:text-destructive text-muted-foreground flex items-center justify-center"
+                    title="Remove logo"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-2 italic">
+              PNG/JPG under 600 KB. Branding appears on the cover band and page footer of every Pollination Compare PDF you export. Stored on this device only.
+            </p>
+          </div>
+        )}
 
         {/* Mode toggle */}
         <div className="flex gap-2 mb-4 p-1 rounded-xl border border-border bg-muted/20 w-fit">
