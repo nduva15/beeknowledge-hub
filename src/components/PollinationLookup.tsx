@@ -406,8 +406,9 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
                       })} />
                     </tbody>
                   </table>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
 
             {compareCrops.length >= 2 && (
