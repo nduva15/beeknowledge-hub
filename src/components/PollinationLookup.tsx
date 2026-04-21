@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
-import { X, Sprout, Flower2, GitCompare, Calculator } from "lucide-react";
+import { X, Sprout, Flower2, GitCompare, Calculator, FileDown, FileSpreadsheet } from "lucide-react";
+import jsPDF from "jspdf";
+import { toast } from "sonner";
 
 type Crop = {
   name: string;
@@ -70,6 +72,99 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
       }
       return [...prev, name];
     });
+  };
+
+  const buildCompareRows = () => {
+    const areaUnit = unit === "acre" ? "ac" : "ha";
+    const headers = ["Metric", ...compareCrops];
+    const rows: string[][] = [
+      ["Stocking / acre", ...compareCrops.map((n) => { const c = CROPS.find((x) => x.name === n)!; return `${c.perAcre[0]}-${c.perAcre[1]}`; })],
+      ["Stocking / ha", ...compareCrops.map((n) => { const c = CROPS.find((x) => x.name === n)!; return `${c.perHa[0]}-${c.perHa[1]}`; })],
+      [`Colonies for ${acres} ${areaUnit}`, ...compareCrops.map((n) => { const r = calc(CROPS.find((x) => x.name === n)!); return `${r.colMin}-${r.colMax}`; })],
+      ["Frames of bees", ...compareCrops.map((n) => { const r = calc(CROPS.find((x) => x.name === n)!); return `${r.framesMin}-${r.framesMax}`; })],
+      ["Min frames / colony", ...compareCrops.map((n) => { const c = CROPS.find((x) => x.name === n)!; return `${c.framesMin}`; })],
+      ["Bloom window (days)", ...compareCrops.map((n) => { const c = CROPS.find((x) => x.name === n)!; return `${c.bloomDays[0]}-${c.bloomDays[1]}`; })],
+      ["Days to PSI=1.0", ...compareCrops.map((n) => { const r = calc(CROPS.find((x) => x.name === n)!); return `~${r.daysToSaturate}`; })],
+      ["Visits required (M)", ...compareCrops.map((n) => { const r = calc(CROPS.find((x) => x.name === n)!); return `${(r.totalVisits / 1_000_000).toFixed(1)}`; })],
+      ["Notes", ...compareCrops.map((n) => CROPS.find((x) => x.name === n)!.notes)],
+    ];
+    return { headers, rows };
+  };
+
+  const exportCompareCSV = () => {
+    const { headers, rows } = buildCompareRows();
+    const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
+    const csv = [headers, ...rows].map((r) => r.map(escape).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `pollination-compare-${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("CSV exported");
+  };
+
+  const exportComparePDF = () => {
+    const { headers, rows } = buildCompareRows();
+    const doc = new jsPDF({ unit: "pt", format: "a4", orientation: "landscape" });
+    const margin = 36;
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+
+    // Header band
+    doc.setFillColor(245, 158, 11);
+    doc.rect(0, 0, pageW, 60, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("BeeYield Pollination Compare", margin, 32);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `${acres} ${unit === "acre" ? "acres" : "hectares"} · ${compareCrops.length} crops · ${new Date().toLocaleString()}`,
+      margin,
+      48,
+    );
+
+    // Table
+    let y = 90;
+    const colCount = headers.length;
+    const colW = (pageW - margin * 2) / colCount;
+    const rowH = 22;
+
+    const drawRow = (cells: string[], opts: { bold?: boolean; fill?: [number, number, number]; textColor?: [number, number, number] } = {}) => {
+      if (opts.fill) {
+        doc.setFillColor(...opts.fill);
+        doc.rect(margin, y - 14, pageW - margin * 2, rowH, "F");
+      }
+      doc.setFont("helvetica", opts.bold ? "bold" : "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(...(opts.textColor || [40, 40, 40]));
+      cells.forEach((c, i) => {
+        const lines = doc.splitTextToSize(c, colW - 8);
+        doc.text(lines.slice(0, 2).join(" "), margin + i * colW + 4, y);
+      });
+      y += rowH;
+      if (y > pageH - margin) { doc.addPage(); y = margin + 20; }
+    };
+
+    drawRow(headers, { bold: true, fill: [255, 243, 205], textColor: [120, 70, 0] });
+    rows.forEach((r, i) => drawRow(r, { fill: i % 2 === 0 ? [250, 250, 250] : [255, 255, 255] }));
+
+    // Footer
+    const total = doc.getNumberOfPages();
+    for (let i = 1; i <= total; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(`BeeYield Pollination Lookup • Page ${i} / ${total}`, pageW - margin, pageH - 16, { align: "right" });
+    }
+
+    doc.save(`beeyield-pollination-compare-${Date.now()}.pdf`);
+    toast.success("PDF exported");
   };
 
   if (!isOpen) return null;
@@ -243,8 +338,30 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
                 Select at least 2 crops above to compare.
               </div>
             ) : (
-              <div className="rounded-xl border border-border bg-card overflow-hidden mb-6">
-                <div className="overflow-x-auto">
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-xs text-muted-foreground">
+                    Comparing <span className="text-honey font-semibold">{compareCrops.length}</span> crops at <span className="text-foreground font-semibold">{acres} {unit === "acre" ? "acres" : "ha"}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={exportCompareCSV}
+                      className="px-3 h-9 rounded-lg border border-border hover:border-primary/50 text-xs flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                      title="Export comparison as CSV"
+                    >
+                      <FileSpreadsheet className="w-3.5 h-3.5" /> CSV
+                    </button>
+                    <button
+                      onClick={exportComparePDF}
+                      className="px-3 h-9 rounded-lg border border-honey/40 bg-honey/5 hover:bg-honey/10 text-honey text-xs flex items-center gap-1.5"
+                      title="Export comparison as PDF"
+                    >
+                      <FileDown className="w-3.5 h-3.5" /> PDF
+                    </button>
+                  </div>
+                </div>
+                <div className="rounded-xl border border-border bg-card overflow-hidden mb-6">
+                  <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
                       <tr>
@@ -289,8 +406,9 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
                       })} />
                     </tbody>
                   </table>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
 
             {compareCrops.length >= 2 && (
