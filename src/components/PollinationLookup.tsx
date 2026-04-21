@@ -1,7 +1,17 @@
-import { useMemo, useState } from "react";
-import { X, Sprout, Flower2, GitCompare, Calculator, FileDown, FileSpreadsheet } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { X, Sprout, Flower2, GitCompare, Calculator, FileDown, FileSpreadsheet, Building2, Upload, Trash2 } from "lucide-react";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
+
+const BRAND_KEY = "beeyield-farm-brand";
+type Brand = { farmName: string; logoDataUrl: string | null };
+const loadBrand = (): Brand => {
+  try {
+    const raw = localStorage.getItem(BRAND_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch { /* ignore */ }
+  return { farmName: "", logoDataUrl: null };
+};
 
 type Crop = {
   name: string;
