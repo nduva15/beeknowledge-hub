@@ -208,7 +208,10 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(150);
-      doc.text(`BeeYield Pollination Lookup • Page ${i} / ${total}`, pageW - margin, pageH - 16, { align: "right" });
+      const footer = brand.farmName.trim()
+        ? `${brand.farmName.trim()} · BeeYield Pollination · Page ${i} / ${total}`
+        : `BeeYield Pollination Lookup · Page ${i} / ${total}`;
+      doc.text(footer, pageW - margin, pageH - 16, { align: "right" });
     }
 
     doc.save(`beeyield-pollination-compare-${Date.now()}.pdf`);
