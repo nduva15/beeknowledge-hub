@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { X, Calculator, Loader2, Sparkles, Save, FileDown, History, Trash2, Copy, TrendingUp } from "lucide-react";
+import { X, Calculator, Loader2, Sparkles, Save, FileDown, History, Trash2, Copy, TrendingUp, FileSpreadsheet, Link2, StickyNote } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
@@ -33,6 +33,7 @@ type SavedRun = {
   region: string;
   local_estimate_kg: number | null;
   ai_forecast: string | null;
+  notes: string | null;
   created_at: string;
 };
 
@@ -51,6 +52,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
   const [fillPct, setFillPct] = useState(75);
   const [hhi, setHhi] = useState(80);
   const [region, setRegion] = useState("Kenya / East Africa");
+  const [notes, setNotes] = useState("");
 
   // Local quick estimate
   const frame = FRAME_TYPES.find((f) => f.name === frameType)!;
@@ -75,6 +77,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [savedRuns, setSavedRuns] = useState<SavedRun[]>([]);
   const [saving, setSaving] = useState(false);
+  const [trendOnlyAI, setTrendOnlyAI] = useState(false);
 
   const loadRuns = useCallback(async () => {
     const { data, error } = await supabase
@@ -162,6 +165,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
       fill_pct: fillPct, hhi, region,
       local_estimate_kg: Number(apiaryHarvest.toFixed(2)),
       ai_forecast: aiText || null,
+      notes: notes.trim() || null,
     });
     setSaving(false);
     if (error) {
@@ -172,6 +176,18 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
     loadRuns();
   };
 
+  const copyShareLink = async (id: string) => {
+    const url = `${window.location.origin}/shared-run/${id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "BeeYield Harvest Forecast", url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Share link copied — send to your farm partners");
+      }
+    } catch { /* user cancelled */ }
+  };
+
   const loadRun = (r: SavedRun) => {
     setHives(r.hives);
     setAcres(Number(r.acres));
@@ -180,6 +196,7 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
     setFillPct(r.fill_pct);
     setHhi(r.hhi);
     setRegion(r.region);
+    setNotes(r.notes || "");
     if (r.ai_forecast) {
       setAiText(r.ai_forecast);
       setAiOpen(true);
@@ -190,6 +207,35 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
     setHistoryOpen(false);
     toast.success("Loaded saved run");
   };
+
+  const duplicateRun = (r: SavedRun) => {
+    setHives(r.hives);
+    setAcres(Number(r.acres));
+    setCrop(r.crop);
+    setFrameType(r.frame_type);
+    setFillPct(r.fill_pct);
+    setHhi(r.hhi);
+    setRegion(r.region);
+    setNotes((r.notes ? r.notes + "\n" : "") + "[clone] what-if scenario based on " + new Date(r.created_at).toLocaleDateString());
+    setAiOpen(false);
+    setAiText("");
+    setHistoryOpen(false);
+    toast.success("Run cloned — tweak any parameter for a what-if scenario");
+  };
+
+  // HHI / harvest trend data (oldest → newest for time-series)
+  const trendData = useMemo(() => {
+    return [...savedRuns]
+      .filter((r) => (trendOnlyAI ? !!r.ai_forecast : true))
+      .reverse()
+      .map((r, i) => ({
+        idx: i + 1,
+        date: new Date(r.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+        hhi: r.hhi,
+        harvest: Number(r.local_estimate_kg ?? 0),
+        crop: r.crop,
+      }));
+  }, [savedRuns, trendOnlyAI]);
 
   const duplicateRun = (r: SavedRun) => {
     setHives(r.hives);
