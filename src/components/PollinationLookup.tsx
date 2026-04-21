@@ -142,23 +142,43 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
     const pageW = doc.internal.pageSize.getWidth();
     const pageH = doc.internal.pageSize.getHeight();
 
-    // Header band
+    // Cover band — BeeYield brand colour with optional farm logo + farm name
     doc.setFillColor(245, 158, 11);
-    doc.rect(0, 0, pageW, 60, "F");
+    doc.rect(0, 0, pageW, 78, "F");
+
+    // Logo (left). If present, draw 56x56 inside the band.
+    let textStartX = margin;
+    if (brand.logoDataUrl) {
+      try {
+        const m = brand.logoDataUrl.match(/^data:image\/(png|jpeg|jpg);/i);
+        const fmt = m && /jpe?g/i.test(m[1]) ? "JPEG" : "PNG";
+        doc.addImage(brand.logoDataUrl, fmt, margin, 11, 56, 56);
+        textStartX = margin + 70;
+      } catch { /* malformed logo — skip */ }
+    }
+
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("BeeYield Pollination Compare", margin, 32);
-    doc.setFontSize(10);
+    doc.setFontSize(16);
+    if (brand.farmName.trim()) {
+      doc.text(brand.farmName.trim(), textStartX, 28);
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "normal");
+      doc.text("Pollination Comparison Report · BeeYield", textStartX, 46);
+    } else {
+      doc.setFontSize(18);
+      doc.text("BeeYield Pollination Compare", textStartX, 34);
+    }
+    doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
     doc.text(
       `${acres} ${unit === "acre" ? "acres" : "hectares"} · ${compareCrops.length} crops · ${new Date().toLocaleString()}`,
-      margin,
-      48,
+      textStartX,
+      brand.farmName.trim() ? 62 : 52,
     );
 
     // Table
-    let y = 90;
+    let y = 108;
     const colCount = headers.length;
     const colW = (pageW - margin * 2) / colCount;
     const rowH = 22;
