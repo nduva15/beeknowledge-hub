@@ -237,32 +237,6 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
       }));
   }, [savedRuns, trendOnlyAI]);
 
-  const duplicateRun = (r: SavedRun) => {
-    setHives(r.hives);
-    setAcres(Number(r.acres));
-    setCrop(r.crop);
-    setFrameType(r.frame_type);
-    setFillPct(r.fill_pct);
-    setHhi(r.hhi);
-    setRegion(r.region);
-    setAiOpen(false);
-    setAiText("");
-    setHistoryOpen(false);
-    toast.success("Run cloned — tweak any parameter for a what-if scenario");
-  };
-
-  // HHI / harvest trend data (oldest → newest for time-series)
-  const trendData = useMemo(() => {
-    return [...savedRuns]
-      .reverse()
-      .map((r, i) => ({
-        idx: i + 1,
-        date: new Date(r.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-        hhi: r.hhi,
-        harvest: Number(r.local_estimate_kg ?? 0),
-        crop: r.crop,
-      }));
-  }, [savedRuns]);
 
   const deleteRun = async (id: string) => {
     const { error } = await supabase.from("harvest_runs").delete().eq("id", id);
