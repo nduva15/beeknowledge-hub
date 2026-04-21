@@ -545,6 +545,18 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
               <option>Temperate (US/EU)</option>
             </select>
           </Field>
+          <div className="md:col-span-2">
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
+              <StickyNote className="w-3 h-3 text-honey" /> Notes (what changed in this what-if scenario?)
+            </label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="e.g. Bumped HHI from 70 to 82 after Apivar treatment; tested wider frame fill assumption."
+              rows={2}
+              className={`${inputCls} resize-y min-h-[60px]`}
+            />
+          </div>
         </div>
 
         {/* Quick local estimate */}
@@ -573,21 +585,31 @@ export default function HarvestCalculator({ isOpen, onClose }: Props) {
         </button>
 
         {/* Action bar: Save / PDF / Share */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4">
+        {/* Action bar: Save / PDF / CSV / Share */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
           <button
             onClick={saveRun}
             disabled={saving}
             className="px-4 py-2.5 rounded-lg border border-honey/40 bg-honey/5 hover:bg-honey/10 text-honey font-medium text-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Save run to history
+            Save run
           </button>
           <button
             onClick={exportPDF}
             className="px-4 py-2.5 rounded-lg border border-border hover:border-primary/50 text-foreground font-medium text-sm flex items-center justify-center gap-2"
+            title="Export the full forecast card (inputs, worked math, AI forecast, notes) as a PDF"
           >
             <FileDown className="w-4 h-4" />
-            Export PDF report
+            Export PDF
+          </button>
+          <button
+            onClick={exportForecastCSV}
+            className="px-4 py-2.5 rounded-lg border border-border hover:border-primary/50 text-foreground font-medium text-sm flex items-center justify-center gap-2"
+            title="Export numeric inputs + AI forecast as CSV"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            Export CSV
           </button>
           <button
             onClick={sharePDF}
