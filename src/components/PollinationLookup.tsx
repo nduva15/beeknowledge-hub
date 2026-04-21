@@ -52,6 +52,24 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
   const [acres, setAcres] = useState<number>(10);
   const [unit, setUnit] = useState<"acre" | "ha">("acre");
 
+  // Farm branding (persisted in localStorage, used on exported PDF cover band)
+  const [brand, setBrand] = useState<Brand>(loadBrand);
+  const [brandOpen, setBrandOpen] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    try { localStorage.setItem(BRAND_KEY, JSON.stringify(brand)); } catch { /* ignore */ }
+  }, [brand]);
+
+  const onLogoUpload = (file: File) => {
+    if (file.size > 600_000) {
+      toast.error("Logo must be under 600 KB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setBrand((b) => ({ ...b, logoDataUrl: typeof reader.result === "string" ? reader.result : null }));
+    reader.readAsDataURL(file);
+  };
+
   // Compare mode state
   const [compareCrops, setCompareCrops] = useState<string[]>([CROPS[0].name, CROPS[2].name]);
 
