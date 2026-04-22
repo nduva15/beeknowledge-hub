@@ -263,7 +263,7 @@ export default function HivePlacementMap({ isOpen, onClose }: Props) {
 
             {field.length >= 3 && (
               <Polygon
-                positions={field.map((p) => [p.lat, p.lng])}
+                positions={field.map((p) => [p.lat, p.lng] as [number, number])}
                 pathOptions={{ color: "hsl(43,74%,49%)", fillColor: "hsl(43,74%,49%)", fillOpacity: 0.18, weight: 2 }}
               />
             )}
