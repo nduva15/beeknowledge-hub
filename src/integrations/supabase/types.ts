@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      bee_flight_logs: {
+        Row: {
+          ai_insights: string | null
+          bees_per_minute: number
+          created_at: string
+          device_id: string
+          flight_distance_m: number | null
+          florage_source: string | null
+          hive_label: string
+          id: string
+          notes: string | null
+          observed_at: string
+          pollen_loads: number
+          weather: string | null
+        }
+        Insert: {
+          ai_insights?: string | null
+          bees_per_minute?: number
+          created_at?: string
+          device_id: string
+          flight_distance_m?: number | null
+          florage_source?: string | null
+          hive_label?: string
+          id?: string
+          notes?: string | null
+          observed_at?: string
+          pollen_loads?: number
+          weather?: string | null
+        }
+        Update: {
+          ai_insights?: string | null
+          bees_per_minute?: number
+          created_at?: string
+          device_id?: string
+          flight_distance_m?: number | null
+          florage_source?: string | null
+          hive_label?: string
+          id?: string
+          notes?: string | null
+          observed_at?: string
+          pollen_loads?: number
+          weather?: string | null
+        }
+        Relationships: []
+      }
+      bloom_observations: {
+        Row: {
+          ai_insights: string | null
+          bloom_end: string | null
+          bloom_start: string | null
+          created_at: string
+          crop: string
+          device_id: string
+          id: string
+          intensity: number
+          notes: string | null
+          peak_bloom: string | null
+          region: string
+        }
+        Insert: {
+          ai_insights?: string | null
+          bloom_end?: string | null
+          bloom_start?: string | null
+          created_at?: string
+          crop: string
+          device_id: string
+          id?: string
+          intensity?: number
+          notes?: string | null
+          peak_bloom?: string | null
+          region: string
+        }
+        Update: {
+          ai_insights?: string | null
+          bloom_end?: string | null
+          bloom_start?: string | null
+          created_at?: string
+          crop?: string
+          device_id?: string
+          id?: string
+          intensity?: number
+          notes?: string | null
+          peak_bloom?: string | null
+          region?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
@@ -72,24 +159,39 @@ export type Database = {
       }
       harvest_run_comments: {
         Row: {
+          anchor_lat: number | null
+          anchor_lng: number | null
+          anchor_step: number | null
+          anchor_type: string
           author_name: string
           body: string
           created_at: string
           id: string
+          parent_id: string | null
           run_id: string
         }
         Insert: {
+          anchor_lat?: number | null
+          anchor_lng?: number | null
+          anchor_step?: number | null
+          anchor_type?: string
           author_name?: string
           body: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           run_id: string
         }
         Update: {
+          anchor_lat?: number | null
+          anchor_lng?: number | null
+          anchor_step?: number | null
+          anchor_type?: string
           author_name?: string
           body?: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           run_id?: string
         }
         Relationships: [
@@ -110,6 +212,7 @@ export type Database = {
           id: string
           local_estimate_kg: number | null
           run_id: string
+          site_layout: Json | null
           version_label: string
         }
         Insert: {
@@ -119,6 +222,7 @@ export type Database = {
           id?: string
           local_estimate_kg?: number | null
           run_id: string
+          site_layout?: Json | null
           version_label?: string
         }
         Update: {
@@ -128,6 +232,7 @@ export type Database = {
           id?: string
           local_estimate_kg?: number | null
           run_id?: string
+          site_layout?: Json | null
           version_label?: string
         }
         Relationships: [
