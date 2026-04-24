@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3, Flower2, Calculator, Target, MapPin } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3, Flower2, Calculator, Target, MapPin, Plane, Sprout } from "lucide-react";
 import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
 import { useTheme } from "@/hooks/use-theme";
@@ -17,6 +17,8 @@ import PollinationLookup from "@/components/PollinationLookup";
 import HarvestCalculator from "@/components/HarvestCalculator";
 import PrecisionDrilldown from "@/components/PrecisionDrilldown";
 import HivePlacementMap from "@/components/HivePlacementMap";
+import BeeFlightTracker from "@/components/BeeFlightTracker";
+import BloomPhenology from "@/components/BloomPhenology";
 
 type Message = {
   id: string;
@@ -122,6 +124,8 @@ export default function Index() {
   const [calculatorOpen, setCalculatorOpen] = useState(false);
   const [drilldownOpen, setDrilldownOpen] = useState(false);
   const [siteMapOpen, setSiteMapOpen] = useState(false);
+  const [flightTrackerOpen, setFlightTrackerOpen] = useState(false);
+  const [bloomPhenologyOpen, setBloomPhenologyOpen] = useState(false);
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
@@ -405,6 +409,20 @@ export default function Index() {
             <MapPin className="w-4 h-4" />
           </button>
           <button
+            onClick={() => setFlightTrackerOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Bee Flight Tracker"
+          >
+            <Plane className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setBloomPhenologyOpen(true)}
+            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
+            title="Bloom Phenology"
+          >
+            <Sprout className="w-4 h-4" />
+          </button>
+          <button
             onClick={() => setAboutOpen(true)}
             className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
             title="About Beeyield AI"
@@ -646,6 +664,8 @@ export default function Index() {
       <HarvestCalculator isOpen={calculatorOpen} onClose={() => setCalculatorOpen(false)} />
       <PrecisionDrilldown isOpen={drilldownOpen} onClose={() => setDrilldownOpen(false)} />
       <HivePlacementMap isOpen={siteMapOpen} onClose={() => setSiteMapOpen(false)} />
+      <BeeFlightTracker isOpen={flightTrackerOpen} onClose={() => setFlightTrackerOpen(false)} />
+      <BloomPhenology isOpen={bloomPhenologyOpen} onClose={() => setBloomPhenologyOpen(false)} />
     </div>
   );
 }
