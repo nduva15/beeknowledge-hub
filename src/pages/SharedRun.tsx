@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Loader2, ArrowLeft, Calculator, Sparkles, AlertTriangle, FileDown, FileSpreadsheet, MessageSquare, Send, GitBranch, Eye } from "lucide-react";
+import { Loader2, ArrowLeft, Calculator, Sparkles, AlertTriangle, FileDown, FileSpreadsheet, MessageSquare, Send, GitBranch, Eye, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { downloadPDF, downloadCSV, type AssumptionsBlock, type ExportPayload } from "@/lib/harvest-export";
 import { toast } from "sonner";
+import HivePlacementMap from "@/components/HivePlacementMap";
 
 type SharedRunRow = {
   id: string;
@@ -68,6 +69,7 @@ export default function SharedRun() {
   const [commentName, setCommentName] = useState("");
   const [commentBody, setCommentBody] = useState("");
   const [postingComment, setPostingComment] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
 
   useEffect(() => {
     let cancel = false;
@@ -231,7 +233,17 @@ export default function SharedRun() {
                 <button onClick={handleExportCSV} className="px-2 h-8 rounded border border-border hover:border-honey/50 hover:text-honey text-muted-foreground flex items-center gap-1 text-xs">
                   <FileSpreadsheet className="w-3 h-3" /> CSV
                 </button>
+                <button onClick={() => setMapOpen(true)} className="px-2 h-8 rounded border border-primary/40 text-primary hover:bg-primary/10 flex items-center gap-1 text-xs" title="Open the saved field & hive layout for this version">
+                  <MapPin className="w-3 h-3" /> Map
+                </button>
               </div>
+              <HivePlacementMap
+                isOpen={mapOpen}
+                onClose={() => setMapOpen(false)}
+                readOnly
+                initialRunId={run.id}
+                initialVersionId={selectedVersion}
+              />
             </div>
             <h2 className="font-display text-2xl font-bold text-foreground mb-4">
               {run.crop} · {run.hives} hives
