@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { X, Calculator, Loader2, Sparkles, Save, FileDown, History, Trash2, Copy, TrendingUp, FileSpreadsheet, Link2, StickyNote, GitBranch, ListTree } from "lucide-react";
+import { X, Calculator, Loader2, Sparkles, Save, FileDown, History, Trash2, Copy, TrendingUp, FileSpreadsheet, Link2, StickyNote, GitBranch, ListTree, Target } from "lucide-react";
 import { toast } from "sonner";
 import MarkdownRenderer from "@/components/MarkdownRenderer";
 import { supabase } from "@/integrations/supabase/client";
