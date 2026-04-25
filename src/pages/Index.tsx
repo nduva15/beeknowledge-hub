@@ -28,6 +28,10 @@ import HivePlacementMap from "@/components/HivePlacementMap";
 import BeeFlightTracker from "@/components/BeeFlightTracker";
 import BloomPhenology from "@/components/BloomPhenology";
 import MOAView from "@/components/MOAView";
+import FloragePage from "@/components/FloragePage";
+import ActivityCounter from "@/components/ActivityCounter";
+import ActivityForecaster from "@/components/ActivityForecaster";
+import PollinationPlanning from "@/components/PollinationPlanning";
 
 type Message = {
   id: string;
@@ -137,6 +141,11 @@ export default function Index() {
   const [flightTrackerOpen, setFlightTrackerOpen] = useState(false);
   const [bloomPhenologyOpen, setBloomPhenologyOpen] = useState(false);
   const [moaOpen, setMoaOpen] = useState(false);
+  const [floragePageOpen, setFloragePageOpen] = useState(false);
+  const [activityCounterOpen, setActivityCounterOpen] = useState(false);
+  const [activityForecasterOpen, setActivityForecasterOpen] = useState(false);
+  const [pollinationPlanningOpen, setPollinationPlanningOpen] = useState(false);
+  const [promptVariant, setPromptVariant] = useState<"baseline" | "bloom" | "flight" | "bloom_flight">("baseline");
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
@@ -280,6 +289,7 @@ export default function Index() {
         imgType,
         audioBase64,
         audioType,
+        promptVariant,
         (chunk) => {
           assistantContent += chunk;
           setMessages((p) => {
