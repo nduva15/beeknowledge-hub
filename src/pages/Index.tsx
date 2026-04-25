@@ -1,5 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3, Flower2, Calculator, Target, MapPin, Plane, Sprout } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3, Flower2, Calculator, Target, MapPin, Plane, Sprout, Menu, Layers } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
 import { useTheme } from "@/hooks/use-theme";
@@ -19,6 +27,7 @@ import PrecisionDrilldown from "@/components/PrecisionDrilldown";
 import HivePlacementMap from "@/components/HivePlacementMap";
 import BeeFlightTracker from "@/components/BeeFlightTracker";
 import BloomPhenology from "@/components/BloomPhenology";
+import MOAView from "@/components/MOAView";
 
 type Message = {
   id: string;
@@ -126,6 +135,7 @@ export default function Index() {
   const [siteMapOpen, setSiteMapOpen] = useState(false);
   const [flightTrackerOpen, setFlightTrackerOpen] = useState(false);
   const [bloomPhenologyOpen, setBloomPhenologyOpen] = useState(false);
+  const [moaOpen, setMoaOpen] = useState(false);
 
   // Media state
   const [attachedImage, setAttachedImage] = useState<File | null>(null);
