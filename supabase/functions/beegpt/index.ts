@@ -1269,7 +1269,22 @@ serve(async (req: any) => {
 
   try {
     const body = await req.json();
-    const { messages, imageBase64, imageType, audioBase64, audioType } = body;
+    const { messages, imageBase64, imageType, audioBase64, audioType, promptVariant } = body;
+
+    // Prompt variant dispatcher: lets callers scope BeeGPT to a focused expertise.
+    // - "baseline": full BEEYIELD_SYSTEM_PROMPT (all 22 sections)
+    // - "bloom": baseline + emphasis on bloom phenology (suppress unrelated long sections)
+    // - "flight": baseline + emphasis on bee flight, foraging, activity
+    // - "bloom_flight": combined emphasis (default for MOA/diagnostics)
+    let activeSystemPrompt = BEEYIELD_SYSTEM_PROMPT;
+    if (promptVariant === "bloom") {
+      activeSystemPrompt = BEEYIELD_SYSTEM_PROMPT + "\n\nVARIANT FOCUS: Prioritise SECTION 21 (Bloom Phenology) above all else. Lead every answer with phenology shift analysis, climate drivers, and crop-specific bloom timing. Reference the bloom calendar, baseline windows, and forager-day math. Keep other sections concise.";
+    } else if (promptVariant === "flight") {
+      activeSystemPrompt = BEEYIELD_SYSTEM_PROMPT + "\n\nVARIANT FOCUS: Prioritise SECTION 22 (Bee Flight, Foraging, Activity). Lead with activity-counter interpretation, foraging biology, florage zones, and wind/orientation math. Keep other sections concise.";
+    } else if (promptVariant === "bloom_flight") {
+      activeSystemPrompt = BEEYIELD_SYSTEM_PROMPT + "\n\nVARIANT FOCUS: Combined Bloom × Flight expert mode. Always cross-reference SECTION 21 and SECTION 22. Lead with the Combined Bloom × Flight intelligence diagnostic (high bloom + low activity = colony stress; low bloom + high activity = robbing risk; deficit coverage = pollination gap). Output prioritised actions for hive placement and feeding/florage.";
+    }
+
 
     // @ts-ignore
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -1315,7 +1330,7 @@ serve(async (req: any) => {
       body: JSON.stringify({
         model: "google/gemini-3-flash-preview",
         messages: [
-          { role: "system", content: BEEYIELD_SYSTEM_PROMPT },
+          { role: "system", content: activeSystemPrompt },
           ...builtMessages,
         ],
         stream: true,
