@@ -1270,6 +1270,11 @@ serve(async (req: any) => {
   try {
     const body = await req.json();
     const { messages, imageBase64, imageType, audioBase64, audioType, promptVariant } = body;
+    const normalizedPromptVariant =
+      promptVariant === "bloom-only" ? "bloom" :
+      promptVariant === "flight-only" ? "flight" :
+      promptVariant === "bloom-flight" ? "bloom_flight" :
+      promptVariant;
 
     // Prompt variant dispatcher: lets callers scope BeeGPT to a focused expertise.
     // - "baseline": full BEEYIELD_SYSTEM_PROMPT (all 22 sections)
@@ -1277,11 +1282,11 @@ serve(async (req: any) => {
     // - "flight": baseline + emphasis on bee flight, foraging, activity
     // - "bloom_flight": combined emphasis (default for MOA/diagnostics)
     let activeSystemPrompt = BEEYIELD_SYSTEM_PROMPT;
-    if (promptVariant === "bloom") {
+    if (normalizedPromptVariant === "bloom") {
       activeSystemPrompt = BEEYIELD_SYSTEM_PROMPT + "\n\nVARIANT FOCUS: Prioritise SECTION 21 (Bloom Phenology) above all else. Lead every answer with phenology shift analysis, climate drivers, and crop-specific bloom timing. Reference the bloom calendar, baseline windows, and forager-day math. Keep other sections concise.";
-    } else if (promptVariant === "flight") {
+    } else if (normalizedPromptVariant === "flight") {
       activeSystemPrompt = BEEYIELD_SYSTEM_PROMPT + "\n\nVARIANT FOCUS: Prioritise SECTION 22 (Bee Flight, Foraging, Activity). Lead with activity-counter interpretation, foraging biology, florage zones, and wind/orientation math. Keep other sections concise.";
-    } else if (promptVariant === "bloom_flight") {
+    } else if (normalizedPromptVariant === "bloom_flight") {
       activeSystemPrompt = BEEYIELD_SYSTEM_PROMPT + "\n\nVARIANT FOCUS: Combined Bloom × Flight expert mode. Always cross-reference SECTION 21 and SECTION 22. Lead with the Combined Bloom × Flight intelligence diagnostic (high bloom + low activity = colony stress; low bloom + high activity = robbing risk; deficit coverage = pollination gap). Output prioritised actions for hive placement and feeding/florage.";
     }
 

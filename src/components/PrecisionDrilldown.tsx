@@ -10,6 +10,7 @@ import { X, Target, Wind, Mountain, Compass } from "lucide-react";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onOpenPlanning?: () => void;
 }
 
 type CropProfile = {
@@ -43,7 +44,7 @@ const COMPASS_DIRS = [
   { label: "W", deg: 270 }, { label: "NW", deg: 315 },
 ];
 
-export default function PrecisionDrilldown({ isOpen, onClose }: Props) {
+export default function PrecisionDrilldown({ isOpen, onClose, onOpenPlanning }: Props) {
   const [cropName, setCropName] = useState(CROP_PROFILES[0].name);
   const [acres, setAcres] = useState(20);
   const [hives, setHives] = useState(40);
@@ -126,13 +127,23 @@ export default function PrecisionDrilldown({ isOpen, onClose }: Props) {
               <p className="text-xs text-muted-foreground">Drop spacing • orientation • overlap • wind compass • slope modifiers</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-9 h-9 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center text-muted-foreground hover:text-foreground"
-            aria-label="Close"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {onOpenPlanning && (
+              <button
+                onClick={onOpenPlanning}
+                className="px-3 h-9 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 text-xs font-medium"
+              >
+                Open Pollination Planning
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="w-9 h-9 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center text-muted-foreground hover:text-foreground"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Inputs */}

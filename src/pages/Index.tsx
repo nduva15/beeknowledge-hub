@@ -690,8 +690,8 @@ export default function Index() {
       <BeeDiseasesPage isOpen={diseasesOpen} onClose={() => setDiseasesOpen(false)} />
       <PollinationCharts isOpen={pollinationOpen} onClose={() => setPollinationOpen(false)} />
       <PollinationLookup isOpen={lookupOpen} onClose={() => setLookupOpen(false)} />
-      <HarvestCalculator isOpen={calculatorOpen} onClose={() => setCalculatorOpen(false)} />
-      <PrecisionDrilldown isOpen={drilldownOpen} onClose={() => setDrilldownOpen(false)} />
+      <HarvestCalculator isOpen={calculatorOpen} onClose={() => setCalculatorOpen(false)} onOpenPlanning={() => setPollinationPlanningOpen(true)} />
+      <PrecisionDrilldown isOpen={drilldownOpen} onClose={() => setDrilldownOpen(false)} onOpenPlanning={() => setPollinationPlanningOpen(true)} />
       <HivePlacementMap isOpen={siteMapOpen} onClose={() => setSiteMapOpen(false)} />
       <BeeFlightTracker isOpen={flightTrackerOpen} onClose={() => setFlightTrackerOpen(false)} />
       <BloomPhenology isOpen={bloomPhenologyOpen} onClose={() => setBloomPhenologyOpen(false)} />
