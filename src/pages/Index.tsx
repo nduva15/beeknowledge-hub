@@ -369,76 +369,61 @@ export default function Index() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setGalleryOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="Bee Species Gallery"
-          >
-            <Bug className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setDiseasesOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="Bee Diseases & Health"
-          >
-            <HeartPulse className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setPollinationOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="Pollination Data & Charts"
-          >
-            <BarChart3 className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setLookupOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="Pollination Stocking Density Lookup"
-          >
-            <Flower2 className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setCalculatorOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="Harvest Calculator"
-          >
-            <Calculator className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setDrilldownOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="Precision Pollination Drilldown"
-          >
-            <Target className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setSiteMapOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="Precision Hive Placement Map"
-          >
-            <MapPin className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setFlightTrackerOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="Bee Flight Tracker"
-          >
-            <Plane className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setBloomPhenologyOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="Bloom Phenology"
-          >
-            <Sprout className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setAboutOpen(true)}
-            className="w-8 h-8 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center transition-all text-muted-foreground hover:text-foreground"
-            title="About Beeyield AI"
-          >
-            <Info className="w-4 h-4" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border hover:border-primary/50 transition-all text-muted-foreground hover:text-foreground bg-muted"
+                title="Open expert tools menu"
+              >
+                <Menu className="w-4 h-4" />
+                <span className="text-xs font-medium hidden sm:inline">Tools</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64 bg-popover border-border z-50">
+              <DropdownMenuLabel className="text-honey">Knowledge & Reference</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setGalleryOpen(true)} className="cursor-pointer">
+                <Bug className="w-4 h-4 mr-2" /> Bee Species Gallery
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDiseasesOpen(true)} className="cursor-pointer">
+                <HeartPulse className="w-4 h-4 mr-2" /> Bee Diseases & Health
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setPollinationOpen(true)} className="cursor-pointer">
+                <BarChart3 className="w-4 h-4 mr-2" /> Pollination Data & Charts
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLookupOpen(true)} className="cursor-pointer">
+                <Flower2 className="w-4 h-4 mr-2" /> Stocking Density Lookup
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-honey">Precision Apiary Tools</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setCalculatorOpen(true)} className="cursor-pointer">
+                <Calculator className="w-4 h-4 mr-2" /> Harvest Calculator
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDrilldownOpen(true)} className="cursor-pointer">
+                <Target className="w-4 h-4 mr-2" /> Precision Pollination Drilldown
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSiteMapOpen(true)} className="cursor-pointer">
+                <MapPin className="w-4 h-4 mr-2" /> Hive Placement Map
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-honey">Bloom & Flight Expert</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setBloomPhenologyOpen(true)} className="cursor-pointer">
+                <Sprout className="w-4 h-4 mr-2" /> Bloom Phenology
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFlightTrackerOpen(true)} className="cursor-pointer">
+                <Plane className="w-4 h-4 mr-2" /> Bee Flight & Activity Tracker
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setMoaOpen(true)} className="cursor-pointer">
+                <Layers className="w-4 h-4 mr-2" /> MOA — Multi-Objective View
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setAboutOpen(true)} className="cursor-pointer">
+                <Info className="w-4 h-4 mr-2" /> About Beeyield AI
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           {messages.length > 0 && (
             <button
               onClick={() => {
