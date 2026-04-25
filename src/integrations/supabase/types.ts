@@ -211,6 +211,7 @@ export type Database = {
           created_at: string
           id: string
           local_estimate_kg: number | null
+          moa_filters: Json | null
           run_id: string
           site_layout: Json | null
           version_label: string
@@ -221,6 +222,7 @@ export type Database = {
           created_at?: string
           id?: string
           local_estimate_kg?: number | null
+          moa_filters?: Json | null
           run_id: string
           site_layout?: Json | null
           version_label?: string
@@ -231,6 +233,7 @@ export type Database = {
           created_at?: string
           id?: string
           local_estimate_kg?: number | null
+          moa_filters?: Json | null
           run_id?: string
           site_layout?: Json | null
           version_label?: string
