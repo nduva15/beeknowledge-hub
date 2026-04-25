@@ -428,6 +428,18 @@ export default function Index() {
               <DropdownMenuItem onClick={() => setMoaOpen(true)} className="cursor-pointer">
                 <Layers className="w-4 h-4 mr-2" /> MOA — Multi-Objective View
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFloragePageOpen(true)} className="cursor-pointer">
+                <Sprout className="w-4 h-4 mr-2" /> Florage Database
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActivityCounterOpen(true)} className="cursor-pointer">
+                <Plane className="w-4 h-4 mr-2" /> Quick Activity Counter
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setActivityForecasterOpen(true)} className="cursor-pointer">
+                <BarChart3 className="w-4 h-4 mr-2" /> Bee Activity Forecaster
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setPollinationPlanningOpen(true)} className="cursor-pointer">
+                <Target className="w-4 h-4 mr-2" /> Pollination Planning
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setAboutOpen(true)} className="cursor-pointer">
@@ -673,6 +685,10 @@ export default function Index() {
       <BeeFlightTracker isOpen={flightTrackerOpen} onClose={() => setFlightTrackerOpen(false)} />
       <BloomPhenology isOpen={bloomPhenologyOpen} onClose={() => setBloomPhenologyOpen(false)} />
       <MOAView isOpen={moaOpen} onClose={() => setMoaOpen(false)} />
+      <FloragePage isOpen={floragePageOpen} onClose={() => setFloragePageOpen(false)} />
+      <ActivityCounter isOpen={activityCounterOpen} onClose={() => setActivityCounterOpen(false)} />
+      <ActivityForecaster isOpen={activityForecasterOpen} onClose={() => setActivityForecasterOpen(false)} />
+      <PollinationPlanning isOpen={pollinationPlanningOpen} onClose={() => setPollinationPlanningOpen(false)} />
     </div>
   );
 }
