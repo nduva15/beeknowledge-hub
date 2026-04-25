@@ -661,6 +661,7 @@ export default function Index() {
       <HivePlacementMap isOpen={siteMapOpen} onClose={() => setSiteMapOpen(false)} />
       <BeeFlightTracker isOpen={flightTrackerOpen} onClose={() => setFlightTrackerOpen(false)} />
       <BloomPhenology isOpen={bloomPhenologyOpen} onClose={() => setBloomPhenologyOpen(false)} />
+      <MOAView isOpen={moaOpen} onClose={() => setMoaOpen(false)} />
     </div>
   );
 }
