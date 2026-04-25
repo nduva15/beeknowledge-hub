@@ -58,6 +58,7 @@ async function streamBeeyield(
   imageType: string | null,
   audioBase64: string | null,
   audioType: string | null,
+  promptVariant: string,
   onDelta: (text: string) => void,
   onDone: () => void,
   onError: (err: string) => void
@@ -68,7 +69,7 @@ async function streamBeeyield(
       "Content-Type": "application/json",
       Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
     },
-    body: JSON.stringify({ messages, imageBase64, imageType, audioBase64, audioType }),
+    body: JSON.stringify({ messages, imageBase64, imageType, audioBase64, audioType, promptVariant }),
   });
 
   if (!resp.ok) {
