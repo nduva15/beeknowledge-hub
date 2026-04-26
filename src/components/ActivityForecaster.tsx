@@ -187,7 +187,8 @@ Provide: (1) best foraging day & why; (2) weakest day & cause (cold/wind/rain); 
           <button onClick={onClose} className="w-9 h-9 rounded-lg border border-border hover:border-primary/50 flex items-center justify-center"><X className="w-4 h-4" /></button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 p-4 rounded-xl border border-border bg-muted/30">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4 p-4 rounded-xl border border-border bg-muted/30">
+          <Field label="Hive label"><input value={hiveLabel} onChange={(e) => setHiveLabel(e.target.value)} className={inputCls} /></Field>
           <Field label="Latitude"><input value={lat} onChange={(e) => setLat(e.target.value)} className={inputCls} /></Field>
           <Field label="Longitude"><input value={lng} onChange={(e) => setLng(e.target.value)} className={inputCls} /></Field>
           <Field label="Baseline bees/min"><input type="number" value={baseline} onChange={(e) => setBaseline(+e.target.value)} className={inputCls} /></Field>
