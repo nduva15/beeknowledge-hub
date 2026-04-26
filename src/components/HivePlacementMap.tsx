@@ -286,8 +286,8 @@ export default function HivePlacementMap({
     const versionsTyped = (versionRows || []) as VersionRow[];
     setVersions(versionsTyped);
     setComments((commentRows || []) as AnchoredComment[]);
-    setBlooms((bloomRows || []) as BloomObservation[]);
-    setFlights((flightRows || []) as FlightLog[]);
+    setBlooms((bloomRows || []) as unknown as BloomObservation[]);
+    setFlights((flightRows || []) as unknown as FlightLog[]);
 
     const activeVersion = versionId === "current" ? null : versionsTyped.find((row) => row.id === versionId) || null;
     applyLayout((activeVersion?.site_layout || runRow?.site_layout) as SiteLayout | null);
