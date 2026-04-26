@@ -32,6 +32,9 @@ import FloragePage from "@/components/FloragePage";
 import ActivityCounter from "@/components/ActivityCounter";
 import ActivityForecaster from "@/components/ActivityForecaster";
 import PollinationPlanning from "@/components/PollinationPlanning";
+import PollinationCalcs from "@/components/PollinationCalcs";
+import AlertsPage from "@/components/AlertsPage";
+import MOACompare from "@/components/MOACompare";
 
 type Message = {
   id: string;
