@@ -145,6 +145,9 @@ export default function Index() {
   const [activityCounterOpen, setActivityCounterOpen] = useState(false);
   const [activityForecasterOpen, setActivityForecasterOpen] = useState(false);
   const [pollinationPlanningOpen, setPollinationPlanningOpen] = useState(false);
+  const [pollinationCalcsOpen, setPollinationCalcsOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const [moaCompareOpen, setMoaCompareOpen] = useState(false);
   const [promptVariant, setPromptVariant] = useState<"baseline" | "bloom" | "flight" | "bloom_flight">("baseline");
 
   // Media state
