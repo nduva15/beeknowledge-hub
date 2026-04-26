@@ -219,7 +219,23 @@ Provide: (1) best foraging day & why; (2) weakest day & cause (cold/wind/rain); 
           </div>
         )}
 
-        {aiText && <div className="p-5 rounded-xl border border-honey/30 bg-card mb-4"><MarkdownRenderer content={aiText} /></div>}
+        {history.length > 0 && (
+          <div className="p-4 rounded-xl border border-border bg-card mb-4">
+            <h3 className="font-display text-sm font-bold text-foreground mb-3 flex items-center gap-2"><HistoryIcon className="w-4 h-4 text-honey" /> Last 7 days · predicted vs actual ({hiveLabel})</h3>
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={history}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                <Legend />
+                <Line type="monotone" dataKey="predicted" stroke="hsl(38,92%,50%)" strokeWidth={2} name="Predicted bees/min" dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="actual" stroke="hsl(142,71%,45%)" strokeWidth={2} name="Actual logged" dot={{ r: 3 }} connectNulls />
+              </LineChart>
+            </ResponsiveContainer>
+            <div className="mt-2 text-[11px] text-muted-foreground">Actuals come from <b>Bee Flight Tracker</b> entries for this hive label. Days with no entry show predicted only.</div>
+          </div>
+        )}
 
         <div className="p-3 rounded-lg border border-honey/30 bg-honey/5 text-xs">
           <b className="text-honey">Linked tools:</b> Forecast feeds <b>Pollination Planning</b> (effective forager-days), <b>MOA View</b> (activity panel), and <b>Bee Flight Tracker</b> (compare predicted vs observed).
