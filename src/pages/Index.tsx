@@ -446,6 +446,15 @@ export default function Index() {
               <DropdownMenuItem onClick={() => setPollinationPlanningOpen(true)} className="cursor-pointer">
                 <Target className="w-4 h-4 mr-2" /> Pollination Planning
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setPollinationCalcsOpen(true)} className="cursor-pointer">
+                <Calculator className="w-4 h-4 mr-2" /> Pollination Calcs
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setMoaCompareOpen(true)} className="cursor-pointer">
+                <Layers className="w-4 h-4 mr-2" /> MOA Run Comparison
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setAlertsOpen(true)} className="cursor-pointer">
+                <Bug className="w-4 h-4 mr-2" /> Alerts
+              </DropdownMenuItem>
 
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setAboutOpen(true)} className="cursor-pointer">
