@@ -715,6 +715,9 @@ export default function Index() {
       <ActivityCounter isOpen={activityCounterOpen} onClose={() => setActivityCounterOpen(false)} />
       <ActivityForecaster isOpen={activityForecasterOpen} onClose={() => setActivityForecasterOpen(false)} />
       <PollinationPlanning isOpen={pollinationPlanningOpen} onClose={() => setPollinationPlanningOpen(false)} />
+      <PollinationCalcs isOpen={pollinationCalcsOpen} onClose={() => setPollinationCalcsOpen(false)} />
+      <AlertsPage isOpen={alertsOpen} onClose={() => setAlertsOpen(false)} />
+      <MOACompare isOpen={moaCompareOpen} onClose={() => setMoaCompareOpen(false)} />
     </div>
   );
 }
