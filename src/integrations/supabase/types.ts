@@ -20,23 +20,13 @@ export type Database = {
           bees_per_minute: number
           created_at: string
           device_id: string
-          florage_indicator: string | null
           flight_distance_m: number | null
-          flight_bearing_deg: number | null
-          flight_path: Json | null
           florage_source: string | null
-          foraging_zone: string | null
-          hive_lat: number | null
           hive_label: string
-          hive_lng: number | null
           id: string
           notes: string | null
-          nutrition_score: number | null
           observed_at: string
           pollen_loads: number
-          run_id: string | null
-          storage_level_pct: number | null
-          version_id: string | null
           weather: string | null
         }
         Insert: {
@@ -44,23 +34,13 @@ export type Database = {
           bees_per_minute?: number
           created_at?: string
           device_id: string
-          florage_indicator?: string | null
           flight_distance_m?: number | null
-          flight_bearing_deg?: number | null
-          flight_path?: Json | null
           florage_source?: string | null
-          foraging_zone?: string | null
-          hive_lat?: number | null
           hive_label?: string
-          hive_lng?: number | null
           id?: string
           notes?: string | null
-          nutrition_score?: number | null
           observed_at?: string
           pollen_loads?: number
-          run_id?: string | null
-          storage_level_pct?: number | null
-          version_id?: string | null
           weather?: string | null
         }
         Update: {
@@ -68,23 +48,13 @@ export type Database = {
           bees_per_minute?: number
           created_at?: string
           device_id?: string
-          florage_indicator?: string | null
           flight_distance_m?: number | null
-          flight_bearing_deg?: number | null
-          flight_path?: Json | null
           florage_source?: string | null
-          foraging_zone?: string | null
-          hive_lat?: number | null
           hive_label?: string
-          hive_lng?: number | null
           id?: string
           notes?: string | null
-          nutrition_score?: number | null
           observed_at?: string
           pollen_loads?: number
-          run_id?: string | null
-          storage_level_pct?: number | null
-          version_id?: string | null
           weather?: string | null
         }
         Relationships: []
@@ -92,8 +62,6 @@ export type Database = {
       bloom_observations: {
         Row: {
           ai_insights: string | null
-          anchor_lat: number | null
-          anchor_lng: number | null
           bloom_end: string | null
           bloom_start: string | null
           created_at: string
@@ -102,17 +70,11 @@ export type Database = {
           id: string
           intensity: number
           notes: string | null
-          observed_on: string
           peak_bloom: string | null
           region: string
-          run_id: string | null
-          version_id: string | null
-          zone_label: string | null
         }
         Insert: {
           ai_insights?: string | null
-          anchor_lat?: number | null
-          anchor_lng?: number | null
           bloom_end?: string | null
           bloom_start?: string | null
           created_at?: string
@@ -121,17 +83,11 @@ export type Database = {
           id?: string
           intensity?: number
           notes?: string | null
-          observed_on?: string
           peak_bloom?: string | null
           region: string
-          run_id?: string | null
-          version_id?: string | null
-          zone_label?: string | null
         }
         Update: {
           ai_insights?: string | null
-          anchor_lat?: number | null
-          anchor_lng?: number | null
           bloom_end?: string | null
           bloom_start?: string | null
           created_at?: string
@@ -140,12 +96,8 @@ export type Database = {
           id?: string
           intensity?: number
           notes?: string | null
-          observed_on?: string
           peak_bloom?: string | null
           region?: string
-          run_id?: string | null
-          version_id?: string | null
-          zone_label?: string | null
         }
         Relationships: []
       }
@@ -260,7 +212,6 @@ export type Database = {
           id: string
           local_estimate_kg: number | null
           moa_filters: Json | null
-          prompt_variant: string
           run_id: string
           site_layout: Json | null
           version_label: string
@@ -272,7 +223,6 @@ export type Database = {
           id?: string
           local_estimate_kg?: number | null
           moa_filters?: Json | null
-          prompt_variant?: string
           run_id: string
           site_layout?: Json | null
           version_label?: string
@@ -284,7 +234,6 @@ export type Database = {
           id?: string
           local_estimate_kg?: number | null
           moa_filters?: Json | null
-          prompt_variant?: string
           run_id?: string
           site_layout?: Json | null
           version_label?: string
@@ -313,9 +262,7 @@ export type Database = {
           hives: number
           id: string
           local_estimate_kg: number | null
-          moa_filters: Json | null
           notes: string | null
-          prompt_variant: string
           region: string
           site_layout: Json | null
         }
@@ -332,9 +279,7 @@ export type Database = {
           hives: number
           id?: string
           local_estimate_kg?: number | null
-          moa_filters?: Json | null
           notes?: string | null
-          prompt_variant?: string
           region: string
           site_layout?: Json | null
         }
@@ -351,9 +296,7 @@ export type Database = {
           hives?: number
           id?: string
           local_estimate_kg?: number | null
-          moa_filters?: Json | null
           notes?: string | null
-          prompt_variant?: string
           region?: string
           site_layout?: Json | null
         }
