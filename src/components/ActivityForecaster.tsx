@@ -237,6 +237,9 @@ Provide: (1) best foraging day & why; (2) weakest day & cause (cold/wind/rain); 
           </div>
         )}
 
+        {aiText && <div className="p-5 rounded-xl border border-honey/30 bg-card mb-4"><MarkdownRenderer content={aiText} /></div>}
+
+
         <div className="p-3 rounded-lg border border-honey/30 bg-honey/5 text-xs">
           <b className="text-honey">Linked tools:</b> Forecast feeds <b>Pollination Planning</b> (effective forager-days), <b>MOA View</b> (activity panel), and <b>Bee Flight Tracker</b> (compare predicted vs observed).
         </div>
