@@ -17,6 +17,8 @@ import { evaluateAlerts } from "./AlertsPage";
 type Forecast = { date: string; hour: number; tempC: number; windKmh: number; precipMm: number; predictedBpm: number; band: string };
 
 export default function ActivityForecaster({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const deviceId = useDeviceId();
+  const [hiveLabel, setHiveLabel] = useState("Hive 1");
   const [lat, setLat] = useState("-2.4078");
   const [lng, setLng] = useState("37.9658");
   const [baseline, setBaseline] = useState(100);
@@ -25,6 +27,7 @@ export default function ActivityForecaster({ isOpen, onClose }: { isOpen: boolea
   const [loading, setLoading] = useState(false);
   const [aiText, setAiText] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [history, setHistory] = useState<{ date: string; predicted: number; actual: number | null }[]>([]);
 
   const fetchForecast = async () => {
     setLoading(true); setAiText("");
