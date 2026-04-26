@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_events: {
+        Row: {
+          acknowledged: boolean
+          created_at: string
+          device_id: string
+          hive_label: string
+          id: string
+          message: string
+          metric: string
+          rule_id: string | null
+          value: number | null
+        }
+        Insert: {
+          acknowledged?: boolean
+          created_at?: string
+          device_id: string
+          hive_label: string
+          id?: string
+          message: string
+          metric: string
+          rule_id?: string | null
+          value?: number | null
+        }
+        Update: {
+          acknowledged?: boolean
+          created_at?: string
+          device_id?: string
+          hive_label?: string
+          id?: string
+          message?: string
+          metric?: string
+          rule_id?: string | null
+          value?: number | null
+        }
+        Relationships: []
+      }
+      alert_rules: {
+        Row: {
+          comparator: string
+          created_at: string
+          device_id: string
+          enabled: boolean
+          hive_label: string
+          id: string
+          metric: string
+          threshold: number
+          window_hours: number
+        }
+        Insert: {
+          comparator?: string
+          created_at?: string
+          device_id: string
+          enabled?: boolean
+          hive_label?: string
+          id?: string
+          metric: string
+          threshold: number
+          window_hours?: number
+        }
+        Update: {
+          comparator?: string
+          created_at?: string
+          device_id?: string
+          enabled?: boolean
+          hive_label?: string
+          id?: string
+          metric?: string
+          threshold?: number
+          window_hours?: number
+        }
+        Relationships: []
+      }
       bee_flight_logs: {
         Row: {
           ai_insights: string | null
@@ -27,6 +99,7 @@ export type Database = {
           notes: string | null
           observed_at: string
           pollen_loads: number
+          run_id: string | null
           weather: string | null
         }
         Insert: {
@@ -41,6 +114,7 @@ export type Database = {
           notes?: string | null
           observed_at?: string
           pollen_loads?: number
+          run_id?: string | null
           weather?: string | null
         }
         Update: {
@@ -55,6 +129,7 @@ export type Database = {
           notes?: string | null
           observed_at?: string
           pollen_loads?: number
+          run_id?: string | null
           weather?: string | null
         }
         Relationships: []
@@ -62,6 +137,8 @@ export type Database = {
       bloom_observations: {
         Row: {
           ai_insights: string | null
+          anchor_lat: number | null
+          anchor_lng: number | null
           bloom_end: string | null
           bloom_start: string | null
           created_at: string
@@ -70,11 +147,17 @@ export type Database = {
           id: string
           intensity: number
           notes: string | null
+          observed_on: string
           peak_bloom: string | null
           region: string
+          run_id: string | null
+          version_id: string | null
+          zone_label: string | null
         }
         Insert: {
           ai_insights?: string | null
+          anchor_lat?: number | null
+          anchor_lng?: number | null
           bloom_end?: string | null
           bloom_start?: string | null
           created_at?: string
@@ -83,11 +166,17 @@ export type Database = {
           id?: string
           intensity?: number
           notes?: string | null
+          observed_on?: string
           peak_bloom?: string | null
           region: string
+          run_id?: string | null
+          version_id?: string | null
+          zone_label?: string | null
         }
         Update: {
           ai_insights?: string | null
+          anchor_lat?: number | null
+          anchor_lng?: number | null
           bloom_end?: string | null
           bloom_start?: string | null
           created_at?: string
@@ -96,8 +185,12 @@ export type Database = {
           id?: string
           intensity?: number
           notes?: string | null
+          observed_on?: string
           peak_bloom?: string | null
           region?: string
+          run_id?: string | null
+          version_id?: string | null
+          zone_label?: string | null
         }
         Relationships: []
       }
@@ -157,6 +250,90 @@ export type Database = {
         }
         Relationships: []
       }
+      florage_plants: {
+        Row: {
+          bloom: string
+          created_at: string
+          device_id: string
+          id: string
+          is_default: boolean
+          latin: string
+          name: string
+          nectar: number
+          notes: string | null
+          pollen: number
+          radius: number
+          updated_at: string
+        }
+        Insert: {
+          bloom: string
+          created_at?: string
+          device_id: string
+          id?: string
+          is_default?: boolean
+          latin: string
+          name: string
+          nectar?: number
+          notes?: string | null
+          pollen?: number
+          radius?: number
+          updated_at?: string
+        }
+        Update: {
+          bloom?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          is_default?: boolean
+          latin?: string
+          name?: string
+          nectar?: number
+          notes?: string | null
+          pollen?: number
+          radius?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      forecast_snapshots: {
+        Row: {
+          band: string | null
+          created_at: string
+          device_id: string
+          forecast_for_date: string
+          hive_label: string
+          id: string
+          precip_mm: number | null
+          predicted_bees_per_min: number | null
+          temp_c: number | null
+          wind_kmh: number | null
+        }
+        Insert: {
+          band?: string | null
+          created_at?: string
+          device_id: string
+          forecast_for_date: string
+          hive_label?: string
+          id?: string
+          precip_mm?: number | null
+          predicted_bees_per_min?: number | null
+          temp_c?: number | null
+          wind_kmh?: number | null
+        }
+        Update: {
+          band?: string | null
+          created_at?: string
+          device_id?: string
+          forecast_for_date?: string
+          hive_label?: string
+          id?: string
+          precip_mm?: number | null
+          predicted_bees_per_min?: number | null
+          temp_c?: number | null
+          wind_kmh?: number | null
+        }
+        Relationships: []
+      }
       harvest_run_comments: {
         Row: {
           anchor_lat: number | null
@@ -212,6 +389,7 @@ export type Database = {
           id: string
           local_estimate_kg: number | null
           moa_filters: Json | null
+          prompt_variant: string
           run_id: string
           site_layout: Json | null
           version_label: string
@@ -223,6 +401,7 @@ export type Database = {
           id?: string
           local_estimate_kg?: number | null
           moa_filters?: Json | null
+          prompt_variant?: string
           run_id: string
           site_layout?: Json | null
           version_label?: string
@@ -234,6 +413,7 @@ export type Database = {
           id?: string
           local_estimate_kg?: number | null
           moa_filters?: Json | null
+          prompt_variant?: string
           run_id?: string
           site_layout?: Json | null
           version_label?: string
@@ -262,7 +442,9 @@ export type Database = {
           hives: number
           id: string
           local_estimate_kg: number | null
+          moa_filters: Json | null
           notes: string | null
+          prompt_variant: string
           region: string
           site_layout: Json | null
         }
@@ -279,7 +461,9 @@ export type Database = {
           hives: number
           id?: string
           local_estimate_kg?: number | null
+          moa_filters?: Json | null
           notes?: string | null
+          prompt_variant?: string
           region: string
           site_layout?: Json | null
         }
@@ -296,7 +480,9 @@ export type Database = {
           hives?: number
           id?: string
           local_estimate_kg?: number | null
+          moa_filters?: Json | null
           notes?: string | null
+          prompt_variant?: string
           region?: string
           site_layout?: Json | null
         }
