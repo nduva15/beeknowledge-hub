@@ -1,8 +1,11 @@
-import { useState } from "react";
-import { X, CloudSun, Loader2, Sparkles, Plane } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { X, CloudSun, Loader2, Sparkles, Plane, History as HistoryIcon } from "lucide-react";
 import { toast } from "sonner";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Area, ComposedChart } from "recharts";
 import MarkdownRenderer from "./MarkdownRenderer";
+import { supabase } from "@/integrations/supabase/client";
+import { useDeviceId } from "@/hooks/use-device-id";
+import { evaluateAlerts } from "./AlertsPage";
 
 // Open-Meteo: free, no API key. Hourly temp + wind + precip for next 7 days.
 // Activity prediction model: bees/min ≈ baseline × tempFactor × windFactor × precipFactor × florageFactor
