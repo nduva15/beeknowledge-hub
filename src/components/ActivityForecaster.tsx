@@ -54,9 +54,70 @@ export default function ActivityForecaster({ isOpen, onClose }: { isOpen: boolea
       }
       setForecast(out);
       toast.success(`Loaded ${out.length} hourly forecasts`);
+
+      // Persist daily snapshots + evaluate alerts (today only, to avoid spam)
+      const dayMap = new Map<string, Forecast[]>();
+      for (const f of out) {
+        const key = `2025-${f.date}`; // simple ISO; year not critical for compare
+        if (!dayMap.has(key)) dayMap.set(key, []);
+        dayMap.get(key)!.push(f);
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      const snapshots = Array.from(dayMap.entries()).map(([dateKey, pts]) => ({
+        device_id: deviceId,
+        hive_label: hiveLabel,
+        forecast_for_date: dateKey,
+        predicted_bees_per_min: Math.round(pts.reduce((s, p) => s + p.predictedBpm, 0) / pts.length),
+        temp_c: Math.round((pts.reduce((s, p) => s + p.tempC, 0) / pts.length) * 10) / 10,
+        wind_kmh: Math.round((pts.reduce((s, p) => s + p.windKmh, 0) / pts.length) * 10) / 10,
+        precip_mm: Math.round((pts.reduce((s, p) => s + p.precipMm, 0) / pts.length) * 10) / 10,
+        band: pts[0]?.band || "normal",
+      }));
+      await supabase.from("forecast_snapshots").insert(snapshots);
+      const todaySnap = snapshots.find((s) => s.forecast_for_date.endsWith(today.slice(5)));
+      if (todaySnap) {
+        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "predicted_bees_per_min", value: todaySnap.predicted_bees_per_min });
+        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "wind_kmh", value: todaySnap.wind_kmh });
+        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "temp_c", value: todaySnap.temp_c });
+      }
+      loadHistory();
     } catch (e) { console.error(e); toast.error("Forecast failed"); }
     finally { setLoading(false); }
   };
+
+  const loadHistory = useCallback(async () => {
+    const sevenAgo = new Date(); sevenAgo.setDate(sevenAgo.getDate() - 7);
+    const [{ data: snaps }, { data: actuals }] = await Promise.all([
+      supabase.from("forecast_snapshots").select("forecast_for_date,predicted_bees_per_min")
+        .eq("device_id", deviceId).eq("hive_label", hiveLabel)
+        .gte("created_at", sevenAgo.toISOString()).order("forecast_for_date", { ascending: true }),
+      supabase.from("bee_flight_logs").select("observed_at,bees_per_minute")
+        .eq("device_id", deviceId).eq("hive_label", hiveLabel)
+        .gte("observed_at", sevenAgo.toISOString()).order("observed_at", { ascending: true }),
+    ]);
+    // Aggregate by date
+    const map = new Map<string, { predicted: number[]; actual: number[] }>();
+    for (const s of (snaps as { forecast_for_date: string; predicted_bees_per_min: number }[]) || []) {
+      const d = s.forecast_for_date.slice(0, 10);
+      if (!map.has(d)) map.set(d, { predicted: [], actual: [] });
+      map.get(d)!.predicted.push(s.predicted_bees_per_min);
+    }
+    for (const a of (actuals as { observed_at: string; bees_per_minute: number }[]) || []) {
+      const d = a.observed_at.slice(0, 10);
+      if (!map.has(d)) map.set(d, { predicted: [], actual: [] });
+      map.get(d)!.actual.push(a.bees_per_minute);
+    }
+    const rows = Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, v]) => ({
+        date: date.slice(5),
+        predicted: v.predicted.length ? Math.round(v.predicted.reduce((s, x) => s + x, 0) / v.predicted.length) : 0,
+        actual: v.actual.length ? Math.round(v.actual.reduce((s, x) => s + x, 0) / v.actual.length) : null,
+      }));
+    setHistory(rows);
+  }, [deviceId, hiveLabel]);
+
+  useEffect(() => { if (isOpen) loadHistory(); }, [isOpen, loadHistory]);
 
   const runAI = async () => {
     if (forecast.length === 0) { toast.error("Fetch forecast first"); return; }
