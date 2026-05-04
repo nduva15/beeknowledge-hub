@@ -35,6 +35,9 @@ import PollinationPlanning from "@/components/PollinationPlanning";
 import PollinationCalcs from "@/components/PollinationCalcs";
 import AlertsPage from "@/components/AlertsPage";
 import MOACompare from "@/components/MOACompare";
+import BeeSpeciesPage from "@/components/BeeSpeciesPage";
+import BeeyieldCalculators from "@/components/BeeyieldCalculators";
+import VarroaSimulator from "@/components/VarroaSimulator";
 
 type Message = {
   id: string;
@@ -151,6 +154,9 @@ export default function Index() {
   const [pollinationCalcsOpen, setPollinationCalcsOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
   const [moaCompareOpen, setMoaCompareOpen] = useState(false);
+  const [speciesEditOpen, setSpeciesEditOpen] = useState(false);
+  const [calculatorsOpen, setCalculatorsOpen] = useState(false);
+  const [varroaSimOpen, setVarroaSimOpen] = useState(false);
   const [promptVariant, setPromptVariant] = useState<"baseline" | "bloom" | "flight" | "bloom_flight">("baseline");
 
   // Media state
@@ -402,7 +408,16 @@ export default function Index() {
                 <Bug className="w-4 h-4 mr-2" /> Bee Species Gallery
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setDiseasesOpen(true)} className="cursor-pointer">
-                <HeartPulse className="w-4 h-4 mr-2" /> Bee Diseases & Health
+                <HeartPulse className="w-4 h-4 mr-2" /> Bee Diseases (Editable)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSpeciesEditOpen(true)} className="cursor-pointer">
+                <Bug className="w-4 h-4 mr-2" /> Bee Species (Editable)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setCalculatorsOpen(true)} className="cursor-pointer">
+                <Calculator className="w-4 h-4 mr-2" /> Beeyield Calculators
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setVarroaSimOpen(true)} className="cursor-pointer">
+                <HeartPulse className="w-4 h-4 mr-2" /> Varroa Simulator
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setPollinationOpen(true)} className="cursor-pointer">
                 <BarChart3 className="w-4 h-4 mr-2" /> Pollination Data & Charts
@@ -718,6 +733,9 @@ export default function Index() {
       <PollinationCalcs isOpen={pollinationCalcsOpen} onClose={() => setPollinationCalcsOpen(false)} />
       <AlertsPage isOpen={alertsOpen} onClose={() => setAlertsOpen(false)} />
       <MOACompare isOpen={moaCompareOpen} onClose={() => setMoaCompareOpen(false)} />
+      <BeeSpeciesPage isOpen={speciesEditOpen} onClose={() => setSpeciesEditOpen(false)} />
+      <BeeyieldCalculators isOpen={calculatorsOpen} onClose={() => setCalculatorsOpen(false)} />
+      <VarroaSimulator isOpen={varroaSimOpen} onClose={() => setVarroaSimOpen(false)} />
     </div>
   );
 }
