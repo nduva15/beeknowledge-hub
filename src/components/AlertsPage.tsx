@@ -209,8 +209,12 @@ export default function AlertsPage({ isOpen, onClose }: { isOpen: boolean; onClo
 
 function cmpLabel(c: string) { return c === "lt" ? "<" : c === "gt" ? ">" : "="; }
 
-// Exported helper for the Forecaster to call when it produces a new prediction
-export async function evaluateAlerts(deviceId: string, sample: { hive_label: string; metric: string; value: number }) {
+// Exported helper for the Forecaster to call when it produces a new prediction.
+// Dedupes per (rule, snapshot date, hive) so the same forecast doesn't fire repeatedly.
+export async function evaluateAlerts(
+  deviceId: string,
+  sample: { hive_label: string; metric: string; value: number; snapshotDate?: string }
+) {
   const { data: rules } = await supabase
     .from("alert_rules")
     .select("*")
@@ -219,17 +223,31 @@ export async function evaluateAlerts(deviceId: string, sample: { hive_label: str
     .eq("metric", sample.metric)
     .eq("hive_label", sample.hive_label);
   if (!rules || rules.length === 0) return;
+  const snapshot = sample.snapshotDate || new Date().toISOString().slice(0, 10);
   for (const r of rules as AlertRule[]) {
     const v = sample.value;
     const fires = (r.comparator === "lt" && v < r.threshold) || (r.comparator === "gt" && v > r.threshold) || (r.comparator === "eq" && Math.abs(v - r.threshold) < 0.01);
     if (!fires) continue;
+    const dedupe_key = `${r.id}|${snapshot}|${r.hive_label}`;
     const msg = `${r.hive_label}: ${sample.metric} = ${v.toFixed(1)} (${cmpLabel(r.comparator)} ${r.threshold})`;
-    await supabase.from("alert_events").insert({
-      device_id: deviceId, rule_id: r.id, hive_label: r.hive_label, metric: r.metric, value: v, message: msg,
-    });
+    // Insert with unique dedupe_key — duplicate inserts are silently ignored,
+    // and we only fire the toast/push when the insert actually creates a row.
+    const { data: inserted, error } = await supabase
+      .from("alert_events")
+      .insert({
+        device_id: deviceId, rule_id: r.id, hive_label: r.hive_label, metric: r.metric,
+        value: v, message: msg, dedupe_key, snapshot_date: snapshot,
+      })
+      .select("id");
+    if (error) {
+      // 23505 = unique violation → already notified for this snapshot/hive/rule
+      if ((error as { code?: string }).code !== "23505") console.warn("alert insert", error);
+      continue;
+    }
+    if (!inserted || inserted.length === 0) continue;
     toast.warning(msg);
     if ("Notification" in window && Notification.permission === "granted") {
-      new Notification("BeeYield Alert", { body: msg, icon: "/favicon.ico" });
+      new Notification("BeeYield Alert", { body: msg, icon: "/favicon.ico", tag: dedupe_key });
     }
   }
 }
