@@ -62,7 +62,7 @@ export default function ActivityForecaster({ isOpen, onClose }: { isOpen: boolea
         if (!dayMap.has(key)) dayMap.set(key, []);
         dayMap.get(key)!.push(f);
       }
-      const today = new Date().toISOString().slice(0, 10);
+      // (snapshot dates already in dayMap keys)
       const snapshots = Array.from(dayMap.entries()).map(([dateKey, pts]) => ({
         device_id: deviceId,
         hive_label: hiveLabel,
