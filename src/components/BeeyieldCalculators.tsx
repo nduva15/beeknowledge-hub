@@ -19,9 +19,10 @@ export default function BeeyieldCalculators({ isOpen, onClose }: { isOpen: boole
   const [tab, setTab] = useState("feed");
 
   const saveRun = async (key: string, label: string, inputs: object, outputs: object) => {
-    const { error } = await supabase.from("calculator_runs").insert({
-      device_id: deviceId, calculator_key: key, label, inputs, outputs,
-    });
+    const { error } = await supabase.from("calculator_runs").insert([{
+      device_id: deviceId, calculator_key: key, label,
+      inputs: inputs as never, outputs: outputs as never,
+    }]);
     if (error) toast.error(error.message); else toast.success("Saved to history");
   };
 
