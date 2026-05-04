@@ -74,11 +74,13 @@ export default function ActivityForecaster({ isOpen, onClose }: { isOpen: boolea
         band: pts[0]?.band || "normal",
       }));
       await supabase.from("forecast_snapshots").insert(snapshots);
-      const todaySnap = snapshots.find((s) => s.forecast_for_date.endsWith(today.slice(5)));
-      if (todaySnap) {
-        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "predicted_bees_per_min", value: todaySnap.predicted_bees_per_min });
-        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "wind_kmh", value: todaySnap.wind_kmh });
-        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "temp_c", value: todaySnap.temp_c });
+      // Auto-fire push for every forecast day, deduped per (rule, snapshot date, hive)
+      for (const snap of snapshots) {
+        const snapshotDate = snap.forecast_for_date.slice(0, 10);
+        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "predicted_bees_per_min", value: snap.predicted_bees_per_min, snapshotDate });
+        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "wind_kmh", value: snap.wind_kmh, snapshotDate });
+        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "temp_c", value: snap.temp_c, snapshotDate });
+        await evaluateAlerts(deviceId, { hive_label: hiveLabel, metric: "precip_mm", value: snap.precip_mm, snapshotDate });
       }
       loadHistory();
     } catch (e) { console.error(e); toast.error("Forecast failed"); }
