@@ -18,34 +18,40 @@ export type Database = {
         Row: {
           acknowledged: boolean
           created_at: string
+          dedupe_key: string | null
           device_id: string
           hive_label: string
           id: string
           message: string
           metric: string
           rule_id: string | null
+          snapshot_date: string | null
           value: number | null
         }
         Insert: {
           acknowledged?: boolean
           created_at?: string
+          dedupe_key?: string | null
           device_id: string
           hive_label: string
           id?: string
           message: string
           metric: string
           rule_id?: string | null
+          snapshot_date?: string | null
           value?: number | null
         }
         Update: {
           acknowledged?: boolean
           created_at?: string
+          dedupe_key?: string | null
           device_id?: string
           hive_label?: string
           id?: string
           message?: string
           metric?: string
           rule_id?: string | null
+          snapshot_date?: string | null
           value?: number | null
         }
         Relationships: []
@@ -83,6 +89,57 @@ export type Database = {
           metric?: string
           threshold?: number
           window_hours?: number
+        }
+        Relationships: []
+      }
+      bee_diseases: {
+        Row: {
+          affected_castes: string | null
+          created_at: string
+          device_id: string
+          id: string
+          is_default: boolean
+          name: string
+          notes: string | null
+          pathogen: string
+          prevention: string | null
+          severity: string
+          symptoms: string[]
+          treatments: string[]
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          affected_castes?: string | null
+          created_at?: string
+          device_id?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          notes?: string | null
+          pathogen: string
+          prevention?: string | null
+          severity?: string
+          symptoms?: string[]
+          treatments?: string[]
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          affected_castes?: string | null
+          created_at?: string
+          device_id?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          notes?: string | null
+          pathogen?: string
+          prevention?: string | null
+          severity?: string
+          symptoms?: string[]
+          treatments?: string[]
+          type?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -131,6 +188,54 @@ export type Database = {
           pollen_loads?: number
           run_id?: string | null
           weather?: string | null
+        }
+        Relationships: []
+      }
+      bee_species: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          device_id: string
+          habitat: string | null
+          id: string
+          image_url: string | null
+          is_default: boolean
+          name: string
+          notes: string | null
+          scientific: string
+          traits: string[]
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          device_id?: string
+          habitat?: string | null
+          id?: string
+          image_url?: string | null
+          is_default?: boolean
+          name: string
+          notes?: string | null
+          scientific: string
+          traits?: string[]
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          device_id?: string
+          habitat?: string | null
+          id?: string
+          image_url?: string | null
+          is_default?: boolean
+          name?: string
+          notes?: string | null
+          scientific?: string
+          traits?: string[]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -191,6 +296,39 @@ export type Database = {
           run_id?: string | null
           version_id?: string | null
           zone_label?: string | null
+        }
+        Relationships: []
+      }
+      calculator_runs: {
+        Row: {
+          calculator_key: string
+          created_at: string
+          device_id: string
+          id: string
+          inputs: Json
+          label: string | null
+          notes: string | null
+          outputs: Json
+        }
+        Insert: {
+          calculator_key: string
+          created_at?: string
+          device_id: string
+          id?: string
+          inputs?: Json
+          label?: string | null
+          notes?: string | null
+          outputs?: Json
+        }
+        Update: {
+          calculator_key?: string
+          created_at?: string
+          device_id?: string
+          id?: string
+          inputs?: Json
+          label?: string | null
+          notes?: string | null
+          outputs?: Json
         }
         Relationships: []
       }
@@ -485,6 +623,39 @@ export type Database = {
           prompt_variant?: string
           region?: string
           site_layout?: Json | null
+        }
+        Relationships: []
+      }
+      varroa_simulations: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          label: string
+          mode: string
+          notes: string | null
+          params: Json
+          results: Json
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          label?: string
+          mode?: string
+          notes?: string | null
+          params?: Json
+          results?: Json
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          label?: string
+          mode?: string
+          notes?: string | null
+          params?: Json
+          results?: Json
         }
         Relationships: []
       }
