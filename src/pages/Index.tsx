@@ -38,6 +38,11 @@ import MOACompare from "@/components/MOACompare";
 import BeeSpeciesPage from "@/components/BeeSpeciesPage";
 import BeeyieldCalculators from "@/components/BeeyieldCalculators";
 import VarroaSimulator from "@/components/VarroaSimulator";
+import DatasetImport from "@/components/DatasetImport";
+import FeedingSchedule from "@/components/FeedingSchedule";
+import KnowledgeSearch from "@/components/KnowledgeSearch";
+import ApiarySizing from "@/components/ApiarySizing";
+import YieldProjection from "@/components/YieldProjection";
 
 type Message = {
   id: string;
@@ -157,6 +162,11 @@ export default function Index() {
   const [speciesEditOpen, setSpeciesEditOpen] = useState(false);
   const [calculatorsOpen, setCalculatorsOpen] = useState(false);
   const [varroaSimOpen, setVarroaSimOpen] = useState(false);
+  const [datasetImportOpen, setDatasetImportOpen] = useState(false);
+  const [feedingScheduleOpen, setFeedingScheduleOpen] = useState(false);
+  const [knowledgeSearchOpen, setKnowledgeSearchOpen] = useState(false);
+  const [apiarySizingOpen, setApiarySizingOpen] = useState(false);
+  const [yieldProjectionOpen, setYieldProjectionOpen] = useState(false);
   const [promptVariant, setPromptVariant] = useState<"baseline" | "bloom" | "flight" | "bloom_flight">("baseline");
 
   // Media state
