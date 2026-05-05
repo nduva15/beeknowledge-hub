@@ -38,6 +38,11 @@ import MOACompare from "@/components/MOACompare";
 import BeeSpeciesPage from "@/components/BeeSpeciesPage";
 import BeeyieldCalculators from "@/components/BeeyieldCalculators";
 import VarroaSimulator from "@/components/VarroaSimulator";
+import DatasetImport from "@/components/DatasetImport";
+import FeedingSchedule from "@/components/FeedingSchedule";
+import KnowledgeSearch from "@/components/KnowledgeSearch";
+import ApiarySizing from "@/components/ApiarySizing";
+import YieldProjection from "@/components/YieldProjection";
 
 type Message = {
   id: string;
@@ -157,6 +162,11 @@ export default function Index() {
   const [speciesEditOpen, setSpeciesEditOpen] = useState(false);
   const [calculatorsOpen, setCalculatorsOpen] = useState(false);
   const [varroaSimOpen, setVarroaSimOpen] = useState(false);
+  const [datasetImportOpen, setDatasetImportOpen] = useState(false);
+  const [feedingScheduleOpen, setFeedingScheduleOpen] = useState(false);
+  const [knowledgeSearchOpen, setKnowledgeSearchOpen] = useState(false);
+  const [apiarySizingOpen, setApiarySizingOpen] = useState(false);
+  const [yieldProjectionOpen, setYieldProjectionOpen] = useState(false);
   const [promptVariant, setPromptVariant] = useState<"baseline" | "bloom" | "flight" | "bloom_flight">("baseline");
 
   // Media state
@@ -472,6 +482,24 @@ export default function Index() {
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-honey">Knowledge & Planning</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setDatasetImportOpen(true)} className="cursor-pointer">
+                <Download className="w-4 h-4 mr-2" /> Dataset Import & Re-index
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setKnowledgeSearchOpen(true)} className="cursor-pointer">
+                <Info className="w-4 h-4 mr-2" /> Knowledge Base Search
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFeedingScheduleOpen(true)} className="cursor-pointer">
+                <Calculator className="w-4 h-4 mr-2" /> Feeding Schedule Timeline
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setApiarySizingOpen(true)} className="cursor-pointer">
+                <Layers className="w-4 h-4 mr-2" /> Apiary & Equipment Sizing
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setYieldProjectionOpen(true)} className="cursor-pointer">
+                <BarChart3 className="w-4 h-4 mr-2" /> Honey Yield Projection
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setAboutOpen(true)} className="cursor-pointer">
                 <Info className="w-4 h-4 mr-2" /> About Beeyield AI
               </DropdownMenuItem>
@@ -736,6 +764,11 @@ export default function Index() {
       <BeeSpeciesPage isOpen={speciesEditOpen} onClose={() => setSpeciesEditOpen(false)} />
       <BeeyieldCalculators isOpen={calculatorsOpen} onClose={() => setCalculatorsOpen(false)} />
       <VarroaSimulator isOpen={varroaSimOpen} onClose={() => setVarroaSimOpen(false)} />
+      <DatasetImport isOpen={datasetImportOpen} onClose={() => setDatasetImportOpen(false)} />
+      <FeedingSchedule isOpen={feedingScheduleOpen} onClose={() => setFeedingScheduleOpen(false)} />
+      <KnowledgeSearch isOpen={knowledgeSearchOpen} onClose={() => setKnowledgeSearchOpen(false)} />
+      <ApiarySizing isOpen={apiarySizingOpen} onClose={() => setApiarySizingOpen(false)} />
+      <YieldProjection isOpen={yieldProjectionOpen} onClose={() => setYieldProjectionOpen(false)} />
     </div>
   );
 }
