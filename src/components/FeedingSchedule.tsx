@@ -38,7 +38,7 @@ export default function FeedingSchedule({ isOpen, onClose }: { isOpen: boolean; 
   const load = async () => {
     if (!deviceId) return;
     const { data } = await supabase.from("feeding_schedules").select("*").eq("device_id", deviceId).order("created_at", { ascending: false });
-    setPlans((data ?? []) as Plan[]);
+    setPlans(((data ?? []) as unknown) as Plan[]);
   };
   useEffect(() => { if (isOpen && deviceId) load(); }, [isOpen, deviceId]);
 
