@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3, Flower2, Calculator, Target, MapPin, Plane, Sprout, Menu, Layers } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3, Flower2, Calculator, Target, MapPin, Plane, Sprout, Menu, Layers, Cpu, LogIn, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +12,8 @@ import { toast } from "sonner";
 import beeyieldLogo from "@/assets/beeyield-logo.png";
 import { useTheme } from "@/hooks/use-theme";
 import { useDeviceId } from "@/hooks/use-device-id";
+import { useAuth } from "@/hooks/use-auth";
+import { useNavigate } from "react-router-dom";
 import { useVoiceInput } from "@/hooks/use-voice-input";
 import { supabase } from "@/integrations/supabase/client";
 import ChatHistory, { type Conversation } from "@/components/ChatHistory";
@@ -28,6 +30,7 @@ import HivePlacementMap from "@/components/HivePlacementMap";
 import BeeFlightTracker from "@/components/BeeFlightTracker";
 import BloomPhenology from "@/components/BloomPhenology";
 import MOAView from "@/components/MOAView";
+import MeasurementDataTools from "@/components/MeasurementDataTools";
 import FloragePage from "@/components/FloragePage";
 import ActivityCounter from "@/components/ActivityCounter";
 import ActivityForecaster from "@/components/ActivityForecaster";
@@ -136,6 +139,8 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const deviceId = useDeviceId();
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
 
   // Conversation state
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -155,6 +160,7 @@ export default function Index() {
   const [floragePageOpen, setFloragePageOpen] = useState(false);
   const [activityCounterOpen, setActivityCounterOpen] = useState(false);
   const [activityForecasterOpen, setActivityForecasterOpen] = useState(false);
+  const [measurementToolsOpen, setMeasurementToolsOpen] = useState(false);
   const [pollinationPlanningOpen, setPollinationPlanningOpen] = useState(false);
   const [pollinationCalcsOpen, setPollinationCalcsOpen] = useState(false);
   const [alertsOpen, setAlertsOpen] = useState(false);
@@ -500,6 +506,24 @@ export default function Index() {
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-honey">Measurement Data Tools</DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => (user ? setMeasurementToolsOpen(true) : navigate("/auth?next=/"))}
+                className="cursor-pointer"
+              >
+                <Cpu className="w-4 h-4 mr-2" /> My Devices, USB, Bluetooth & Online
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+              {user ? (
+                <DropdownMenuItem onClick={() => void signOut()} className="cursor-pointer">
+                  <LogOut className="w-4 h-4 mr-2" /> Sign out{profile?.full_name ? ` (${profile.full_name})` : ""}
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => navigate("/auth?next=/")} className="cursor-pointer">
+                  <LogIn className="w-4 h-4 mr-2" /> Sign in / Sign up
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem onClick={() => setAboutOpen(true)} className="cursor-pointer">
                 <Info className="w-4 h-4 mr-2" /> About Beeyield AI
               </DropdownMenuItem>
@@ -756,6 +780,7 @@ export default function Index() {
       <MOAView isOpen={moaOpen} onClose={() => setMoaOpen(false)} />
       <FloragePage isOpen={floragePageOpen} onClose={() => setFloragePageOpen(false)} />
       <ActivityCounter isOpen={activityCounterOpen} onClose={() => setActivityCounterOpen(false)} />
+      <MeasurementDataTools isOpen={measurementToolsOpen} onClose={() => setMeasurementToolsOpen(false)} />
       <ActivityForecaster isOpen={activityForecasterOpen} onClose={() => setActivityForecasterOpen(false)} />
       <PollinationPlanning isOpen={pollinationPlanningOpen} onClose={() => setPollinationPlanningOpen(false)} />
       <PollinationCalcs isOpen={pollinationCalcsOpen} onClose={() => setPollinationCalcsOpen(false)} />

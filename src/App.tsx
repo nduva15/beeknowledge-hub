@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import SharedRun from "./pages/SharedRun";
 import Auth from "./pages/Auth";
 import OAuthConsent from "./pages/OAuthConsent";
+import { AuthProvider } from "./hooks/use-auth";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <AuthProvider>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
@@ -25,6 +27,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
