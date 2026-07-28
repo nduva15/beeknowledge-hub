@@ -5,6 +5,7 @@ import searchFloragePlants from "./tools/search-florage-plants";
 import searchKnowledgeFacts from "./tools/search-knowledge-facts";
 import pollinationStockingDensity from "./tools/pollination-stocking-density";
 import harvestEstimate from "./tools/harvest-estimate";
+import hiveActivityForecast from "./tools/hive-activity-forecast";
 
 const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID ?? "project-ref-unset";
 
@@ -27,5 +28,6 @@ export default defineMcp({
     searchKnowledgeFacts,
     pollinationStockingDensity,
     harvestEstimate,
+    hiveActivityForecast,
   ],
 });
