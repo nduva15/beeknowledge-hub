@@ -28,5 +28,6 @@ export default defineMcp({
     searchKnowledgeFacts,
     pollinationStockingDensity,
     harvestEstimate,
+    hiveActivityForecast,
   ],
 });
