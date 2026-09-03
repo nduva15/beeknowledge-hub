@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3, Flower2, Calculator, Target, MapPin, Plane, Sprout, Menu, Layers, Cpu, LogIn, LogOut } from "lucide-react";
+import { Send, Loader2, Image, Mic, MicOff, X, User, Sun, Moon, History, Info, Download, Bug, HeartPulse, BarChart3, Flower2, Calculator, Target, MapPin, Plane, Sprout, Menu, Layers, Cpu, LogIn, LogOut, Plug, LifeBuoy, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -524,6 +524,30 @@ export default function Index() {
                   <LogIn className="w-4 h-4 mr-2" /> Sign in / Sign up
                 </DropdownMenuItem>
               )}
+              <DropdownMenuItem
+                onClick={() => window.open("/beeyield-dashboard?tab=home", "_blank")}
+                className="cursor-pointer"
+              >
+                <HeartPulse className="w-4 h-4 mr-2" /> Hive Health Dashboard
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => window.open("/beeyield-dashboard?tab=integrations", "_blank")}
+                className="cursor-pointer"
+              >
+                <Plug className="w-4 h-4 mr-2" /> Integrations (Shopify, QuickBooks, eTIMS)
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => window.open("/beeyield-dashboard?tab=support", "_blank")}
+                className="cursor-pointer"
+              >
+                <LifeBuoy className="w-4 h-4 mr-2" /> Support & Tickets
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => window.open("/beeyield-dashboard?tab=settings", "_blank")}
+                className="cursor-pointer"
+              >
+                <Settings className="w-4 h-4 mr-2" /> Settings — Control Center
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setAboutOpen(true)} className="cursor-pointer">
                 <Info className="w-4 h-4 mr-2" /> About Beeyield AI
               </DropdownMenuItem>
