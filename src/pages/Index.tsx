@@ -525,25 +525,37 @@ export default function Index() {
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
-                onClick={() => window.open("/beeyield-dashboard?tab=home", "_blank")}
+                onClick={() => {
+                  const base = window.location.hostname.includes("beeyield.com") ? "" : "https://beeyield.com";
+                  window.open(`${base}/beeyield-dashboard?tab=home`, "_blank");
+                }}
                 className="cursor-pointer"
               >
                 <HeartPulse className="w-4 h-4 mr-2" /> Hive Health Dashboard
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => window.open("/beeyield-dashboard?tab=integrations", "_blank")}
+                onClick={() => {
+                  const base = window.location.hostname.includes("beeyield.com") ? "" : "https://beeyield.com";
+                  window.open(`${base}/beeyield-dashboard?tab=integrations`, "_blank");
+                }}
                 className="cursor-pointer"
               >
                 <Plug className="w-4 h-4 mr-2" /> Integrations (Shopify, QuickBooks, eTIMS)
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => window.open("/beeyield-dashboard?tab=support", "_blank")}
+                onClick={() => {
+                  const base = window.location.hostname.includes("beeyield.com") ? "" : "https://beeyield.com";
+                  window.open(`${base}/beeyield-dashboard?tab=support`, "_blank");
+                }}
                 className="cursor-pointer"
               >
                 <LifeBuoy className="w-4 h-4 mr-2" /> Support & Tickets
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => window.open("/beeyield-dashboard?tab=settings", "_blank")}
+                onClick={() => {
+                  const base = window.location.hostname.includes("beeyield.com") ? "" : "https://beeyield.com";
+                  window.open(`${base}/beeyield-dashboard?tab=settings`, "_blank");
+                }}
                 className="cursor-pointer"
               >
                 <Settings className="w-4 h-4 mr-2" /> Settings — Control Center
