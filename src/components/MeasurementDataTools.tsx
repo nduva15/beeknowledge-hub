@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import {
   X, Cpu, Usb, Bluetooth, Wifi, Plus, Trash2, ScanLine, ArrowLeft, ArrowRight, Check,
   Loader2, Thermometer, Droplets, Scale, BatteryCharging, MapPin, Boxes, Terminal,
@@ -32,12 +32,13 @@ const yearColor = (y: number) => QUEEN_YEAR_COLORS[y % 5] ?? "#d8d3c8";
 /* ------------------------------------------------------------------ QR scanner */
 
 function QrScanner({ onResult, onCancel }: { onResult: (text: string) => void; onCancel: () => void }) {
-  const elId = useRef(`qr-${Math.random().toString(36).slice(2)}`);
+  const reactId = useId();
+  const elId = `qr-${reactId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
-    const scanner = new Html5Qrcode(elId.current);
+    const scanner = new Html5Qrcode(elId);
     scannerRef.current = scanner;
     scanner
       .start(
@@ -53,11 +54,11 @@ function QrScanner({ onResult, onCancel }: { onResult: (text: string) => void; o
     return () => {
       if (scanner.isScanning) void scanner.stop().catch(() => undefined);
     };
-  }, [onResult]);
+  }, [elId, onResult]);
 
   return (
     <div className="space-y-3">
-      <div className="rounded-xl overflow-hidden border-2 border-honey/60 bg-black/80" id={elId.current} />
+      <div className="rounded-xl overflow-hidden border-2 border-honey/60 bg-black/80" id={elId} />
       {err && (
         <p className="text-xs text-destructive">
           {err} — enter the serial manually below instead.
