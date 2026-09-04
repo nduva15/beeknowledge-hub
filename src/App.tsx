@@ -12,12 +12,16 @@ import { AuthProvider } from "./hooks/use-auth";
 
 const queryClient = new QueryClient();
 
+const basename = typeof window !== "undefined" && window.location.pathname.startsWith("/beeknowledge-hub")
+  ? "/beeknowledge-hub"
+  : undefined;
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename={basename}>
         <AuthProvider>
         <Routes>
           <Route path="/" element={<Index />} />
