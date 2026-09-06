@@ -46,6 +46,8 @@ import FeedingSchedule from "@/components/FeedingSchedule";
 import KnowledgeSearch from "@/components/KnowledgeSearch";
 import ApiarySizing from "@/components/ApiarySizing";
 import YieldProjection from "@/components/YieldProjection";
+import HiveHealthDashboard from "@/components/HiveHealthDashboard";
+import SupportPageModal from "@/components/SupportPageModal";
 
 type Message = {
   id: string;
@@ -173,6 +175,8 @@ export default function Index() {
   const [knowledgeSearchOpen, setKnowledgeSearchOpen] = useState(false);
   const [apiarySizingOpen, setApiarySizingOpen] = useState(false);
   const [yieldProjectionOpen, setYieldProjectionOpen] = useState(false);
+  const [hiveHealthOpen, setHiveHealthOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
   const [promptVariant, setPromptVariant] = useState<"baseline" | "bloom" | "flight" | "bloom_flight">("baseline");
 
   // Media state
@@ -525,13 +529,10 @@ export default function Index() {
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
-                onClick={() => {
-                  const base = window.location.hostname.includes("beeyield.com") ? "" : "https://beeyield.com";
-                  window.open(`${base}/beeyield-dashboard?tab=home`, "_blank");
-                }}
+                onClick={() => setHiveHealthOpen(true)}
                 className="cursor-pointer"
               >
-                <HeartPulse className="w-4 h-4 mr-2" /> Hive Health Dashboard
+                <HeartPulse className="w-4 h-4 mr-2 text-amber-500" /> Hive Health Dashboard
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -543,13 +544,10 @@ export default function Index() {
                 <Plug className="w-4 h-4 mr-2" /> Integrations (Shopify, QuickBooks, eTIMS)
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => {
-                  const base = window.location.hostname.includes("beeyield.com") ? "" : "https://beeyield.com";
-                  window.open(`${base}/beeyield-dashboard?tab=support`, "_blank");
-                }}
+                onClick={() => setSupportOpen(true)}
                 className="cursor-pointer"
               >
-                <LifeBuoy className="w-4 h-4 mr-2" /> Support & Tickets
+                <LifeBuoy className="w-4 h-4 mr-2 text-amber-500" /> Support & Tickets
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
@@ -830,6 +828,8 @@ export default function Index() {
       <KnowledgeSearch isOpen={knowledgeSearchOpen} onClose={() => setKnowledgeSearchOpen(false)} />
       <ApiarySizing isOpen={apiarySizingOpen} onClose={() => setApiarySizingOpen(false)} />
       <YieldProjection isOpen={yieldProjectionOpen} onClose={() => setYieldProjectionOpen(false)} />
+      <HiveHealthDashboard isOpen={hiveHealthOpen} onClose={() => setHiveHealthOpen(false)} />
+      <SupportPageModal isOpen={supportOpen} onClose={() => setSupportOpen(false)} />
     </div>
   );
 }
