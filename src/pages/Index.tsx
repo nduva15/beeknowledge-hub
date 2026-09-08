@@ -48,6 +48,7 @@ import ApiarySizing from "@/components/ApiarySizing";
 import YieldProjection from "@/components/YieldProjection";
 import HiveHealthDashboard from "@/components/HiveHealthDashboard";
 import SupportPageModal from "@/components/SupportPageModal";
+import IntegrationsModal from "@/components/IntegrationsModal";
 
 type Message = {
   id: string;
@@ -177,6 +178,7 @@ export default function Index() {
   const [yieldProjectionOpen, setYieldProjectionOpen] = useState(false);
   const [hiveHealthOpen, setHiveHealthOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [integrationsOpen, setIntegrationsOpen] = useState(false);
   const [promptVariant, setPromptVariant] = useState<"baseline" | "bloom" | "flight" | "bloom_flight">("baseline");
 
   // Media state
@@ -535,13 +537,10 @@ export default function Index() {
                 <HeartPulse className="w-4 h-4 mr-2 text-amber-500" /> Hive Health Dashboard
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => {
-                  const base = window.location.hostname.includes("beeyield.com") ? "" : "https://beeyield.com";
-                  window.open(`${base}/beeyield-dashboard?tab=integrations`, "_blank");
-                }}
+                onClick={() => setIntegrationsOpen(true)}
                 className="cursor-pointer"
               >
-                <Plug className="w-4 h-4 mr-2" /> Integrations (Shopify, QuickBooks, eTIMS)
+                <Plug className="w-4 h-4 mr-2 text-amber-500" /> Integrations (Shopify, QuickBooks, eTIMS)
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => setSupportOpen(true)}
@@ -830,6 +829,7 @@ export default function Index() {
       <YieldProjection isOpen={yieldProjectionOpen} onClose={() => setYieldProjectionOpen(false)} />
       <HiveHealthDashboard isOpen={hiveHealthOpen} onClose={() => setHiveHealthOpen(false)} />
       <SupportPageModal isOpen={supportOpen} onClose={() => setSupportOpen(false)} />
+      <IntegrationsModal isOpen={integrationsOpen} onClose={() => setIntegrationsOpen(false)} />
     </div>
   );
 }
