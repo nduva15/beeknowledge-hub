@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { X, Sprout, Flower2, GitCompare, Calculator, FileDown, FileSpreadsheet, Building2, Upload, Trash2 } from "lucide-react";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
@@ -75,7 +75,7 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
 
   const crop = useMemo(() => CROPS.find((c) => c.name === cropName)!, [cropName]);
 
-  const calc = (c: Crop) => {
+  const calc = useCallback((c: Crop) => {
     const range = unit === "acre" ? c.perAcre : c.perHa;
     const colMin = Math.ceil(range[0] * acres);
     const colMax = Math.ceil(range[1] * acres);
@@ -87,9 +87,9 @@ export default function PollinationLookup({ isOpen, onClose }: Props) {
     const tripsPerDay = colMax * 55_000;
     const daysToSaturate = Math.ceil(totalVisits / tripsPerDay);
     return { colMin, colMax, framesMin, framesMax, totalVisits, tripsPerDay, daysToSaturate };
-  };
+  }, [acres, unit]);
 
-  const result = useMemo(() => calc(crop), [crop, acres, unit]);
+  const result = useMemo(() => calc(crop), [calc, crop]);
 
   const toggleCompareCrop = (name: string) => {
     setCompareCrops((prev) => {
